@@ -1,5 +1,5 @@
 
-## 🌐 Socials:
+# 🌐 Socials:
 [![Facebook](https://img.shields.io/badge/Facebook-%231877F2.svg?style=for-the-badge&logo=Facebook&logoColor=white)](https://facebook.com/davide.ladisa.7) [![Instagram](https://img.shields.io/badge/Instagram-%23E4405F.svg?style=for-the-badge&logo=Instagram&logoColor=white)](https://instagram.com/davideladisa.it) [![LinkedIn](https://custom-icon-badges.demolab.com/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin-white&logoColor=fff)](https://linkedin.com/in/davide-ladisa) [![Reddit](https://img.shields.io/badge/Reddit-%23FF4500.svg?style=for-the-badge&logo=Reddit&logoColor=white)](https://reddit.com/user/Pecoro) [![Stack Overflow](https://img.shields.io/badge/-Stackoverflow-FE7A16?logo=stack-overflow&style=for-the-badge&logoColor=white)](https://stackoverflow.com/users/8006279) [![YouTube](https://img.shields.io/badge/YouTube-%23FF0000.svg?style=for-the-badge&logo=YouTube&logoColor=white)](https://youtube.com/@rawasir) [![Codepen](https://img.shields.io/badge/Codepen-000000?style=for-the-badge&logo=codepen&logoColor=white)](https://codepen.io/rawsar) 
 
 # 💻 Tech Stack:
@@ -12,7 +12,7 @@
   <img height=200 align="center" src="https://github-readme-stats.vercel.app/api/top-langs?username=FrancoStino&theme=vue-dark&hide_border=false&include_all_commits=true&count_private=true&layout=compact&card_width=320" />
 </a>
 
-## 🏆 GitHub Trophies
+# 🏆 GitHub Trophies
 ![trophy](https://github-profile-trophy.vercel.app/?username=FrancoStino&theme=radical&no-frame=false&no-bg=true&rank=SSS,SS,S,AAA,AA,A,B,C,SECRET&row=2)
 ### ✍️ Random Dev Quote
 ![](https://quotes-github-readme.vercel.app/api?type=horizontal&theme=merko)
