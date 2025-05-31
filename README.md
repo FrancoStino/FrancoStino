@@ -51,6 +51,7 @@ Do you like numbers and charts? Let's see some then:
 
   <details>
   <summary>🚀 Languages & Technologies</summary>
+  <br/>
   <p>
         <a href="https://developer.mozilla.org/en-US/docs/Web/CSS" target="_blank"> <img  src="https://img.shields.io/badge/css3-%231572B6.svg?style=for-the-badge&logo=css3&logoColor=white" alt="css3"/></a>
         <a href="https://developer.mozilla.org/en-US/docs/Web/HTML" target="_blank"> <img src="https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white" alt="html5"/></a>
@@ -64,6 +65,7 @@ Do you like numbers and charts? Let's see some then:
 
   <details>
   <summary>🗄️ Databases</summary>
+      <br/>
   <p>
   <a href="https://www.mysql.com/" target="_blank"> <img src="https://img.shields.io/badge/mysql-4479A1.svg?style=for-the-badge&logo=mysql&logoColor=white" alt="mysql"/></a>
   <a href="https://mariadb.org/" target="_blank"> <img src="https://img.shields.io/badge/MariaDB-003545?style=for-the-badge&logo=mariadb&logoColor=white" alt="mariadb"/></a>
