@@ -31,7 +31,7 @@ Do you like numbers and charts? Let's see some then:
 <details>
   <summary>📊 Profile's stats</summary>
   <br/>
-    <p align="center"> <a href="https://github.com/FrancoStino"><img src="https://github-readme-stats.vercel.app/api?username=FrancoStino&show_icons=true&theme=tokyonight&count_private=true&include_all_commits=true&hide_title=true&hide_border=false" alt="FrancoStino's Profile Stats Chart" /></a>
+    <p align="center"> <a href="https://github.com/FrancoStino"><img src="https://github-readme-stats.vercel.app/api?username=FrancoStino&show_icons=true&theme=tokyonight&include_all_commits=true&hide_title=true&hide_border=false" alt="FrancoStino's Profile Stats Chart" /></a>
     </p><br/>
         <p align="center"> <a href="https://github.com/FrancoStino"><img src="https://github-readme-streak-stats.herokuapp.com/?user=FrancoStino&theme=tokyonight&hide_border=false" alt="FrancoStino's Streak Stats Chart" /></a>
     </p><br/>
