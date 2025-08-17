@@ -20,7 +20,7 @@
 </p>
 
 
-<p style="align="center"">I am a developer specialized in <i>Web Development</i>, a Tech Enthusiast, and always eager to learn new technologies 😀</p>
+<p align="center">I am a developer specialized in <i>Web Development</i>, a Tech Enthusiast, and always eager to learn new technologies 😀</p>
 
 ## 👨‍💻 About me
 
