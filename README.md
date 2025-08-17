@@ -19,8 +19,7 @@
             src="https://img.shields.io/badge/Reddit-%23FF4500.svg?style=for-the-badge&logo=Reddit&logoColor=white" /></a>
 </p>
 
-<p align="center"><i>I am a passionate developer working with Web and Mobile technologies</i>
-<br><br>
+
 I am a developer specialized in <i>Web Development</i>, a Tech Enthusiast, and always eager to learn new technologies 😀</p>
 
 ## 👨‍💻 About me
