@@ -85,7 +85,7 @@ Do you like numbers and charts? Let's see some then:
 <details>
   <summary>🏆 My trophies</summary>
   <br/>
-  <p align="center"> <a href="https://github.com/FrancoStino"><img src="https://github-profile-trophy.vercel.app/?username=FrancoStino&theme=onedark&no-frame=true&no-bg=true&margin-w=10&column=4" alt="FrancoStino's Trophies" /></a> </p>
+  <p align="center"> <a href="https://github.com/FrancoStino"><img src="https://github-profile-trophy.vercel.app/?username=FrancoStino&theme=onedark&no-frame=true&no-bg=true&margin-w=10&column=-1" alt="FrancoStino's Trophies" /></a> </p>
 </details>
 
 <details>
