@@ -29,7 +29,17 @@ Do you like numbers and charts? Let's see some then:
 <details>
   <summary>📊 Profile's stats</summary>
   <br/>
-    <p align="center"> <a href="https://github.com/FrancoStino"><img src="https://github-readme-stats.vercel.app/api?username=FrancoStino&theme=tokyonight&show_icons=true&count_private=true" alt="FrancoStino's Profile Stats Chart" /></a>
+    <p align="center"> <picture>
+  <source
+    srcset="https://github-readme-stats.vercel.app/api?username=FrancoStino&show_icons=true&include_all_commits=true&theme=tokyonight&show=reviews,discussions_started,discussions_answered,prs_merged,prs_merged_percentage"
+    media="(prefers-color-scheme: dark)"
+  />
+  <source
+    srcset="https://github-readme-stats.vercel.app/api?username=FrancoStino&show_icons=true&include_all_commits=true&show=reviews,discussions_started,discussions_answered,prs_merged,prs_merged_percentage"
+    media="(prefers-color-scheme: light), (prefers-color-scheme: no-preference)"
+  />
+  <img src="https://github-readme-stats.vercel.app/api?username=anuraghazra&show_icons=true" />
+</picture>
     </p><br/>
         <p align="center"> <a href="https://github.com/FrancoStino"><img src="https://github-readme-streak-stats.herokuapp.com/?user=FrancoStino&theme=tokyonight&hide_border=false" alt="FrancoStino's Streak Stats Chart" /></a>
     </p><br/>
