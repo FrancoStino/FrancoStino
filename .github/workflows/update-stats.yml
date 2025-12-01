@@ -24,7 +24,7 @@ jobs:
       pr_number: ${{ steps.create-pr.outputs.pr_number }}
 
     env:
-      GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - name: 1. Checkout Main Branch
@@ -209,9 +209,5 @@ jobs:
           echo "Waiting for PR #$PR_NUMBER to be mergeable..."
           sleep 5
 
-          if gh pr view "$PR_NUMBER" --json mergeable --jq '.mergeable == "MERGEABLE"' | grep -q true; then
-            gh pr merge "$PR_NUMBER" --merge --auto --delete-branch
-            echo "✅ PR #$PR_NUMBER merged successfully"
-          else
-            echo "❌ PR #$PR_NUMBER not mergeable yet, will retry next run"
-          fi
+          gh pr merge "$PR_NUMBER" --merge --delete-branch
+          echo "✅ PR #$PR_NUMBER merged successfully"
