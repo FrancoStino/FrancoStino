@@ -18,6 +18,10 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
+    env:
+      # Token personale usato da gh CLI (attribuisce le azioni al tuo utente)
+      GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+
     steps:
       - name: 1. Checkout Main Branch
         uses: actions/checkout@v3
@@ -85,7 +89,7 @@ jobs:
             "https://github-readme-activity-graph.vercel.app/graph?username=${{ github.repository_owner }}&custom_title=⚡%20Activity%20Graph&days=30&area=true&radius=8&hide_border=true&height=350&theme=react-dark&bg_color=050608&color=ffffff&title_color=ffffff&line=3572a5&point=ffffff&area_color=3572a5" \
             || echo "Failed to fetch Activity Graph."
 
-      - name: 10. Configure Git
+      - name: 10. Configure Git (bot for commits)
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
@@ -152,8 +156,6 @@ jobs:
 
       - name: 20. Create Pull Request
         id: create-pr
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           # Controlla se esiste già una PR aperta da develop a main
           EXISTING_PR=$(gh pr list --base main --head develop --json number --jq '.[0].number')
@@ -177,34 +179,24 @@ jobs:
             ---
             *This PR was automatically created by GitHub Actions*")
             
-            PR_NUMBER=$(echo $PR_URL | grep -oE '[0-9]+$')
-            echo "pr_number=$PR_NUMBER" >> $GITHUB_OUTPUT
-            echo "pr_created=true" >> $GITHUB_OUTPUT
+            PR_NUMBER=$(echo "$PR_URL" | grep -oE '[0-9]+$')
+            echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+            echo "pr_created=true" >> "$GITHUB_OUTPUT"
           else
-            echo "pr_number=$EXISTING_PR" >> $GITHUB_OUTPUT
-            echo "pr_created=false" >> $GITHUB_OUTPUT
+            echo "pr_number=$EXISTING_PR" >> "$GITHUB_OUTPUT"
+            echo "pr_created=false" >> "$GITHUB_OUTPUT"
             echo "Pull request already exists: #$EXISTING_PR"
           fi
 
       - name: 21. Auto-approve Pull Request (as Davide Ladisa)
         if: steps.create-pr.outputs.pr_created == 'true'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Cambia temporaneamente il nome per l'approvazione
-          git config --local user.email "info@davideladisa.it"
-          git config --local user.name "Davide Ladisa"
-          
-          gh pr review ${{ steps.create-pr.outputs.pr_number }} --approve --body "✅ Auto-approved: All checks passed successfully."
+          gh pr review "${{ steps.create-pr.outputs.pr_number }}" \
+            --approve \
+            --body "✅ Auto-approved: All checks passed successfully."
 
       - name: 22. Enable Auto-merge and Merge Pull Request
         if: steps.create-pr.outputs.pr_number != ''
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Cambia nuovamente il nome per il merge
-          git config --local user.email "info@davideladisa.it"
-          git config --local user.name "Davide Ladisa"
-          
-          # Abilita auto-merge e mergia immediatamente
-          gh pr merge ${{ steps.create-pr.outputs.pr_number }} --merge --auto --delete-branch
+          gh pr merge "${{ steps.create-pr.outputs.pr_number }}" \
+            --merge --auto --delete-branch
