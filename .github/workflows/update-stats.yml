@@ -3,9 +3,11 @@ name: GitHub Readme CI
 on:
   schedule:
     - cron: "0 0 * * *"
-
   workflow_dispatch:
   push:
+    branches:
+      - main
+  pull_request_target:
     branches:
       - main
 
@@ -19,7 +21,6 @@ jobs:
     timeout-minutes: 10
 
     env:
-      # Token personale usato da gh CLI (attribuisce le azioni al tuo utente)
       GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
 
     steps:
@@ -86,7 +87,7 @@ jobs:
         run: |
           curl -f --connect-timeout 30 --retry 3 --retry-delay 5 \
             -o "./assets/activity-graph.svg" \
-            "https://github-readme-activity-graph.vercel.app/graph?username=${{ github.repository_owner }}&custom_title=⚡%20Activity%20Graph&days=30&area=true&radius=8&hide_border=true&height=350&theme=react-dark&bg_color=050608&color=ffffff&title_color=ffffff&line=3572a5&point=ffffff&area_color=3572a5" \
+            "https://github-readme-activity-graph.vercel.app/graph?username=${{ github.repository_owner }}&custom_title=Activity%20Graph&days=30&area=true&radius=8&hide_border=true&height=350&theme=react-dark" \
             || echo "Failed to fetch Activity Graph."
 
       - name: 10. Configure Git (bot for commits)
@@ -94,109 +95,65 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
 
-      - name: 11. Commit Snake Animation (Light)
+      - name: 11-17. Commit assets
         run: |
-          if [ -f "assets/github-snake.svg" ]; then
-            git add assets/github-snake.svg
-            git diff --staged --quiet || git commit -m "🐍 Update: GitHub Snake Animation (Light Mode)"
-          fi
+          git add assets/*
+          git diff --staged --quiet || git commit -m "update"
 
-      - name: 12. Commit Snake Animation (Dark)
-        run: |
-          if [ -f "assets/github-snake-dark.svg" ]; then
-            git add assets/github-snake-dark.svg
-            git diff --staged --quiet || git commit -m "🐍 Update: GitHub Snake Animation (Dark Mode)"
-          fi
-
-      - name: 13. Commit GitHub Trophies
-        run: |
-          if [ -f "assets/github-trophies.svg" ]; then
-            git add assets/github-trophies.svg
-            git diff --staged --quiet || git commit -m "🏆 Update: GitHub Trophies"
-          fi
-
-      - name: 14. Commit GitHub Stats
-        run: |
-          if [ -f "assets/github-stats.svg" ]; then
-            git add assets/github-stats.svg
-            git diff --staged --quiet || git commit -m "📊 Update: GitHub Stats"
-          fi
-
-      - name: 15. Commit Top Languages
-        run: |
-          if [ -f "assets/top-languages.svg" ]; then
-            git add assets/top-languages.svg
-            git diff --staged --quiet || git commit -m "⌨️ Update: Top Languages"
-          fi
-
-      - name: 16. Commit GitHub Streak
-        run: |
-          if [ -f "assets/github-streak.svg" ]; then
-            git add assets/github-streak.svg
-            git diff --staged --quiet || git commit -m "🔥 Update: GitHub Streak"
-          fi
-
-      - name: 17. Commit Activity Graph
-        run: |
-          if [ -f "assets/activity-graph.svg" ]; then
-            git add assets/activity-graph.svg
-            git diff --staged --quiet || git commit -m "⚡ Update: Activity Graph"
-          fi
-
-      - name: 18. Commit Assets README if new
-        run: |
-          if [ -f "assets/README.md" ]; then
-            git add assets/README.md
-            git diff --staged --quiet || git commit -m "📝 Update: Assets README"
-          fi
-
-      - name: 19. Push to develop branch
-        run: |
-          git push origin develop
+      - name: 18. Push to develop branch
+        run: git push origin develop
 
       - name: 20. Create Pull Request
         id: create-pr
         run: |
-          # Controlla se esiste già una PR aperta da develop a main
-          EXISTING_PR=$(gh pr list --base main --head develop --json number --jq '.[0].number')
-          
+          EXISTING_PR=$(gh pr list --base main --head develop --json number --jq '.[0].number // empty')
+
           if [ -z "$EXISTING_PR" ]; then
-            # Crea una nuova PR
-            PR_URL=$(gh pr create \
+            gh pr create \
               --base main \
               --head develop \
-              --title "🤖 Auto-update: GitHub Stats & Visualizations" \
-              --body "Automated update of GitHub statistics and visualizations.
+              --title "update" \
+              --body "update"
 
-            ## Updates included:
-            - 🐍 GitHub Snake Animations
-            - 🏆 GitHub Trophies
-            - 📊 GitHub Stats
-            - ⌨️ Top Languages
-            - 🔥 GitHub Streak
-            - ⚡ Activity Graph
-
-            ---
-            *This PR was automatically created by GitHub Actions*")
-            
-            PR_NUMBER=$(echo "$PR_URL" | grep -oE '[0-9]+$')
-            echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
-            echo "pr_created=true" >> "$GITHUB_OUTPUT"
+            PR_NUMBER=$(gh pr list --base main --head develop --json number --jq '.[0].number')
           else
-            echo "pr_number=$EXISTING_PR" >> "$GITHUB_OUTPUT"
-            echo "pr_created=false" >> "$GITHUB_OUTPUT"
-            echo "Pull request already exists: #$EXISTING_PR"
+            PR_NUMBER=$EXISTING_PR
+            echo "Using existing PR #$PR_NUMBER"
           fi
 
-      - name: 21. Auto-approve Pull Request (as Davide Ladisa)
-        if: steps.create-pr.outputs.pr_created == 'true'
-        run: |
-          gh pr review "${{ steps.create-pr.outputs.pr_number }}" \
-            --approve \
-            --body "✅ Auto-approved: All checks passed successfully."
+          echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
 
-      - name: 22. Enable Auto-merge and Merge Pull Request
-        if: steps.create-pr.outputs.pr_number != ''
+  auto-approve:
+    needs: generate
+    if: github.event_name == 'pull_request_target'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: Auto-approve PR
+        uses: hmarr/auto-approve-action@v4
+        with:
+          github-token: ${{ secrets.WORKFLOW_TOKEN }}
+          review-message: "update"
+
+  auto-merge:
+    needs: auto-approve
+    if: github.event_name == 'pull_request_target'
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: Auto-merge approved PR
+        env:
+          GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         run: |
-          gh pr merge "${{ steps.create-pr.outputs.pr_number }}" \
-            --merge --auto --delete-branch
+          PR_NUMBER=${{ github.event.pull_request.number }}
+          sleep 5
+
+          if gh pr view "$PR_NUMBER" --json mergeable --jq '.mergeable == "MERGEABLE"' | grep -q true; then
+            gh pr merge "$PR_NUMBER" --merge --auto --delete-branch
+          else
+            echo "Not mergeable yet"
+          fi
