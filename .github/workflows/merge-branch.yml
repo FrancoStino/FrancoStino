@@ -16,7 +16,7 @@ jobs:
           fetch-depth: 0  # Full history for merge
       - name: Fetch all remote branches
         run: |
-          git fetch origin main develop --depth=0 --force
+          git fetch origin main develop --force
       - name: Configure Git
         run: |
           git config user.name "Davide Ladisa"
