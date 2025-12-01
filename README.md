@@ -29,35 +29,77 @@ Do you like numbers and charts? Let's see some then:
 <details>
   <summary>📊 Profile's stats</summary>
   <br/>
-    <p align="center"> <picture>
-  <source
-    srcset="https://github-readme-stats-rose-eight-73.vercel.app/api?username=FrancoStino&show_icons=true&include_all_commits=true&theme=tokyonight&show=reviews,prs_merged&hide=issues,contribs&count_private=true"
-    media="(prefers-color-scheme: dark)"
-  />
-  <source
-    srcset="https://github-readme-stats-rose-eight-73.vercel.app/api?username=FrancoStino&show_icons=true&include_all_commits=true&show=reviews,discussions_started,discussions_answered,prs_merged,prs_merged_percentage"
-    media="(prefers-color-scheme: light), (prefers-color-scheme: no-preference)"
-  />
-  <img src="https://github-readme-stats-rose-eight-73.vercel.app/api?username=anuraghazra&show_icons=true" />
-</picture>
+    <p align="center">
+      <picture>
+        <source
+          srcset="./assets/github-stats.svg"
+          media="(prefers-color-scheme: dark)"
+        />
+        <source
+          srcset="./assets/github-stats.svg"
+          media="(prefers-color-scheme: light), (prefers-color-scheme: no-preference)"
+        />
+        <img src="./assets/github-stats.svg" alt="GitHub Stats" />
+      </picture>
     </p><br/>
-        <p align="center"> <a href="https://github.com/FrancoStino"><img src="https://github-readme-streak-stats.herokuapp.com/?user=FrancoStino&theme=tokyonight&hide_border=false" alt="FrancoStino's Streak Stats Chart" /></a>
+    <p align="center">
+      <a href="https://github.com/FrancoStino">
+        <img src="./assets/github-streak.svg" alt="FrancoStino's Streak Stats Chart" />
+      </a>
     </p><br/>
 </details>
+
 <details>
   <summary>⌨️ Most used languages</summary>
   <br/>
-  <p align="center"> <a href="https://github.com/FrancoStino"><img src="https://github-readme-stats-rose-eight-73.vercel.app/api/top-langs/?username=FrancoStino&langs_count=10&layout=compact&theme=tokyonight&hide_border=false&include_all_commits=true&count_private=true" alt="Most used Language Chart" /></a></p>
-  <p align="center"><a href="https://github.com/FrancoStino"><img style="border:1px solid white;border-radius:5px" src="https://github-profile-summary-cards.vercel.app/api/cards/repos-per-language?username=FrancoStino&theme=tokyonight" alt="Most used Language By Repo Chart" /></a> <a href="https://github.com/FrancoStino"><img style="border:1px solid white;border-radius:5px" src="https://github-profile-summary-cards.vercel.app/api/cards/most-commit-language?username=FrancoStino&theme=tokyonight" alt="Most used Language By Commit Chart" /></a></p>
+  <p align="center">
+    <a href="https://github.com/FrancoStino">
+      <img src="./assets/top-languages.svg" alt="Most used Language Chart" />
+    </a>
+  </p>
+  <p align="center">
+    <a href="https://github.com/FrancoStino">
+      <img style="border:1px solid white;border-radius:5px" src="https://github-profile-summary-cards.vercel.app/api/cards/repos-per-language?username=FrancoStino&theme=tokyonight" alt="Most used Language By Repo Chart" />
+    </a>
+    <a href="https://github.com/FrancoStino">
+      <img style="border:1px solid white;border-radius:5px" src="https://github-profile-summary-cards.vercel.app/api/cards/most-commit-language?username=FrancoStino&theme=tokyonight" alt="Most used Language By Commit Chart" />
+    </a>
+  </p>
 </details>
 
 <details>
   <summary>✨ Top Contributions</summary>
   <br/>
-  <p align="center"> <a href="https://github.com/FrancoStino"><img src="https://github-contributor-stats.vercel.app/api?username=FrancoStino&limit=5&theme=tokyonight&combine_all_yearly_contributions=true&hide_title=true" alt="Top Contributor Chart" /></a></p>
+  <p align="center">
+    <a href="https://github.com/FrancoStino">
+      <img src="https://github-contributor-stats.vercel.app/api?username=FrancoStino&limit=5&theme=tokyonight&combine_all_yearly_contributions=true&hide_title=true" alt="Top Contributor Chart" />
+    </a>
+  </p>
 </details>
 
-  <details>
+<details>
+  <summary>⚡ Activity Graph</summary>
+  <br/>
+  <p align="center">
+    <a href="https://github.com/FrancoStino">
+      <img src="./assets/activity-graph.svg" alt="Activity Graph" />
+    </a>
+  </p>
+</details>
+
+<details>
+  <summary>🐍 Contribution Snake</summary>
+  <br/>
+  <p align="center">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="./assets/github-snake-dark.svg">
+      <source media="(prefers-color-scheme: light)" srcset="./assets/github-snake.svg">
+      <img alt="github contribution grid snake animation" src="./assets/github-snake.svg">
+    </picture>
+  </p>
+</details>
+
+<details>
   <summary>🚀 Languages & Technologies</summary>
   <br/>
   <p>
@@ -69,16 +111,15 @@ Do you like numbers and charts? Let's see some then:
         <a href="https://www.gnu.org/software/bash/" target="_blank"> <img src="https://img.shields.io/badge/shell_script-%23121011.svg?style=for-the-badge&logo=gnu-bash&logoColor=white" alt="shell script"/></a>
         <a href="https://daringfireball.net/projects/markdown/" target="_blank"> <img src="https://img.shields.io/badge/markdown-%23000000.svg?style=for-the-badge&logo=markdown&logoColor=white" alt="markdown"/></a>
   </p>
-  </details>
-
-  <details>
-  <summary>🗄️ Databases</summary>
-      <br/>
-  <p>
-  <a href="https://www.mysql.com/" target="_blank"> <img src="https://img.shields.io/badge/mysql-4479A1.svg?style=for-the-badge&logo=mysql&logoColor=white" alt="mysql"/></a>
-  <a href="https://mariadb.org/" target="_blank"> <img src="https://img.shields.io/badge/MariaDB-003545?style=for-the-badge&logo=mariadb&logoColor=white" alt="mariadb"/></a>
-  </p>
 </details>
+
+<details>
+  <summary>🗄️ Databases</summary>
+  <br/>
+  <p>
+    <a href="https://www.mysql.com/" target="_blank"> <img src="https://img.shields.io/badge/mysql-4479A1.svg?style=for-the-badge&logo=mysql&logoColor=white" alt="mysql"/></a>
+    <a href="https://mariadb.org/" target="_blank"> <img src="https://img.shields.io/badge/MariaDB-003545?style=for-the-badge&logo=mariadb&logoColor=white" alt="mariadb"/></a>
+  </p>
 </details>
 
 <details>
@@ -95,7 +136,11 @@ Do you like numbers and charts? Let's see some then:
 <details>
   <summary>🏆 My trophies</summary>
   <br/>
-  <p align="center"> <a href="https://github.com/FrancoStino"><img src="https://github-profile-trophy.vercel.app/?username=FrancoStino&theme=onedark&no-frame=true&no-bg=true&margin-w=10&column=3" alt="FrancoStino's Trophies" /></a> </p>
+  <p align="center">
+    <a href="https://github.com/FrancoStino">
+      <img src="./assets/github-trophies.svg" alt="FrancoStino's Trophies" />
+    </a>
+  </p>
 </details>
 
 <details>
