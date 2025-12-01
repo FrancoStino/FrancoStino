@@ -201,11 +201,20 @@ jobs:
       pull-requests: write
 
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
       - name: Auto-merge approved PR
         env:
           GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         run: |
           PR_NUMBER=${{ needs.generate.outputs.pr_number }}
+          
+          if [ -z "$PR_NUMBER" ]; then
+            echo "❌ PR_NUMBER is empty, cannot merge"
+            exit 1
+          fi
+          
           echo "Waiting for PR #$PR_NUMBER to be mergeable..."
           sleep 5
 
