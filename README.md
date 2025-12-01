@@ -31,7 +31,7 @@ Do you like numbers and charts? Let's see some then:
   <br/>
     <p align="center"> <picture>
   <source
-    srcset="https://github-readme-stats.vercel.app/api?username=FrancoStino&show_icons=true&include_all_commits=true&theme=tokyonight&show=reviews,discussions_started,discussions_answered,prs_merged,prs_merged_percentage"
+    srcset="https://github-readme-stats-blue-omega-45.vercel.app/api?username=FrancoStino&show_icons=true&include_all_commits=true&theme=tokyonight&show=reviews,prs_merged&hide=issues,contribs&count_private=true"
     media="(prefers-color-scheme: dark)"
   />
   <source
