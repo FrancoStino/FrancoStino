@@ -26,7 +26,7 @@ jobs:
       pr_number: ${{ steps.create-pr.outputs.pr_number }}
 
     env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
 
     steps:
       - name: 1. Checkout Main Branch
@@ -95,10 +95,10 @@ jobs:
             "https://github-readme-activity-graph.vercel.app/graph?username=${{ github.repository_owner }}&custom_title=⚡%20Activity%20Graph&days=30&area=true&radius=8&hide_border=true&height=350&theme=react-dark&bg_color=050608&color=ffffff&title_color=ffffff&line=3572a5&point=ffffff&area_color=3572a5" \
             || echo "Failed to fetch Activity Graph."
 
-      - name: 10. Configure Git (bot for commits)
+      - name: 10. Configure Git (your account for commits)
         run: |
-          git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
+          git config --local user.email "info@davideladisa.it"
+          git config --local user.name "Davide Ladisa"
 
       - name: 11. Commit Snake Animation (Light)
         run: |
