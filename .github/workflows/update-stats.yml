@@ -87,7 +87,7 @@ jobs:
         run: |
           curl -f --connect-timeout 30 --retry 3 --retry-delay 5 \
             -o "./assets/activity-graph.svg" \
-            "https://github-readme-activity-graph.vercel.app/graph?username=${{ github.repository_owner }}&custom_title=Activity%20Graph&days=30&area=true&radius=8&hide_border=true&height=350&theme=react-dark" \
+            "https://github-readme-activity-graph.vercel.app/graph?username=${{ github.repository_owner }}&custom_title=⚡%20Activity%20Graph&days=30&area=true&radius=8&hide_border=true&height=350&theme=react-dark&bg_color=050608&color=ffffff&title_color=ffffff&line=3572a5&point=ffffff&area_color=3572a5" \
             || echo "Failed to fetch Activity Graph."
 
       - name: 10. Configure Git (bot for commits)
@@ -95,12 +95,63 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
 
-      - name: 11-17. Commit assets
+      - name: 11. Commit Snake Animation (Light)
         run: |
-          git add assets/*
-          git diff --staged --quiet || git commit -m "update"
+          if [ -f "assets/github-snake.svg" ]; then
+            git add assets/github-snake.svg
+            git diff --staged --quiet || git commit -m "🐍 Update: GitHub Snake Animation (Light Mode)"
+          fi
 
-      - name: 18. Push to develop branch
+      - name: 12. Commit Snake Animation (Dark)
+        run: |
+          if [ -f "assets/github-snake-dark.svg" ]; then
+            git add assets/github-snake-dark.svg
+            git diff --staged --quiet || git commit -m "🐍 Update: GitHub Snake Animation (Dark Mode)"
+          fi
+
+      - name: 13. Commit GitHub Trophies
+        run: |
+          if [ -f "assets/github-trophies.svg" ]; then
+            git add assets/github-trophies.svg
+            git diff --staged --quiet || git commit -m "🏆 Update: GitHub Trophies"
+          fi
+
+      - name: 14. Commit GitHub Stats
+        run: |
+          if [ -f "assets/github-stats.svg" ]; then
+            git add assets/github-stats.svg
+            git diff --staged --quiet || git commit -m "📊 Update: GitHub Stats"
+          fi
+
+      - name: 15. Commit Top Languages
+        run: |
+          if [ -f "assets/top-languages.svg" ]; then
+            git add assets/top-languages.svg
+            git diff --staged --quiet || git commit -m "⌨️ Update: Top Languages"
+          fi
+
+      - name: 16. Commit GitHub Streak
+        run: |
+          if [ -f "assets/github-streak.svg" ]; then
+            git add assets/github-streak.svg
+            git diff --staged --quiet || git commit -m "🔥 Update: GitHub Streak"
+          fi
+
+      - name: 17. Commit Activity Graph
+        run: |
+          if [ -f "assets/activity-graph.svg" ]; then
+            git add assets/activity-graph.svg
+            git diff --staged --quiet || git commit -m "⚡ Update: Activity Graph"
+          fi
+
+      - name: 18. Commit Assets README if new
+        run: |
+          if [ -f "assets/README.md" ]; then
+            git add assets/README.md
+            git diff --staged --quiet || git commit -m "📝 Update: Assets README"
+          fi
+
+      - name: 19. Push to develop branch
         run: git push origin develop
 
       - name: 20. Create Pull Request
@@ -112,7 +163,7 @@ jobs:
             gh pr create \
               --base main \
               --head develop \
-              --title "update" \
+              --title "🤖 Auto-update: GitHub Stats & Visualizations" \
               --body "update"
 
             PR_NUMBER=$(gh pr list --base main --head develop --json number --jq '.[0].number')
@@ -122,6 +173,7 @@ jobs:
           fi
 
           echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+          echo "PR created/updated: #$PR_NUMBER"
 
   auto-approve:
     needs: generate
@@ -135,7 +187,7 @@ jobs:
         uses: hmarr/auto-approve-action@v4
         with:
           github-token: ${{ secrets.WORKFLOW_TOKEN }}
-          review-message: "update"
+          review-message: "✅ Auto-approved: All GitHub stats updated successfully"
 
   auto-merge:
     needs: auto-approve
@@ -150,10 +202,12 @@ jobs:
           GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         run: |
           PR_NUMBER=${{ github.event.pull_request.number }}
+          echo "Waiting for PR #$PR_NUMBER to be mergeable..."
           sleep 5
 
           if gh pr view "$PR_NUMBER" --json mergeable --jq '.mergeable == "MERGEABLE"' | grep -q true; then
             gh pr merge "$PR_NUMBER" --merge --auto --delete-branch
+            echo "✅ PR #$PR_NUMBER merged successfully"
           else
-            echo "Not mergeable yet"
+            echo "❌ PR #$PR_NUMBER not mergeable yet, will retry next run"
           fi
