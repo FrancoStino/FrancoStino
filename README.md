@@ -31,14 +31,14 @@ Do you like numbers and charts? Let's see some then:
   <br/>
     <p align="center"> <picture>
   <source
-    srcset="https://github-readme-stats-blue-omega-45.vercel.app/api?username=FrancoStino&show_icons=true&include_all_commits=true&theme=tokyonight&show=reviews,prs_merged&hide=issues,contribs&count_private=true"
+    srcset="https://github-readme-stats-rose-eight-73.vercel.app/api?username=FrancoStino&show_icons=true&include_all_commits=true&theme=tokyonight&show=reviews,prs_merged&hide=issues,contribs&count_private=true"
     media="(prefers-color-scheme: dark)"
   />
   <source
-    srcset="https://github-readme-stats.vercel.app/api?username=FrancoStino&show_icons=true&include_all_commits=true&show=reviews,discussions_started,discussions_answered,prs_merged,prs_merged_percentage"
+    srcset="https://github-readme-stats-rose-eight-73.vercel.app/api?username=FrancoStino&show_icons=true&include_all_commits=true&show=reviews,discussions_started,discussions_answered,prs_merged,prs_merged_percentage"
     media="(prefers-color-scheme: light), (prefers-color-scheme: no-preference)"
   />
-  <img src="https://github-readme-stats.vercel.app/api?username=anuraghazra&show_icons=true" />
+  <img src="https://github-readme-stats-rose-eight-73.vercel.app/api?username=anuraghazra&show_icons=true" />
 </picture>
     </p><br/>
         <p align="center"> <a href="https://github.com/FrancoStino"><img src="https://github-readme-streak-stats.herokuapp.com/?user=FrancoStino&theme=tokyonight&hide_border=false" alt="FrancoStino's Streak Stats Chart" /></a>
@@ -47,7 +47,7 @@ Do you like numbers and charts? Let's see some then:
 <details>
   <summary>⌨️ Most used languages</summary>
   <br/>
-  <p align="center"> <a href="https://github.com/FrancoStino"><img src="https://github-readme-stats.vercel.app/api/top-langs/?username=FrancoStino&langs_count=10&layout=compact&theme=tokyonight&hide_border=false&include_all_commits=true&count_private=true" alt="Most used Language Chart" /></a></p>
+  <p align="center"> <a href="https://github.com/FrancoStino"><img src="https://github-readme-stats-rose-eight-73.vercel.app/api/top-langs/?username=FrancoStino&langs_count=10&layout=compact&theme=tokyonight&hide_border=false&include_all_commits=true&count_private=true" alt="Most used Language Chart" /></a></p>
   <p align="center"><a href="https://github.com/FrancoStino"><img style="border:1px solid white;border-radius:5px" src="https://github-profile-summary-cards.vercel.app/api/cards/repos-per-language?username=FrancoStino&theme=tokyonight" alt="Most used Language By Repo Chart" /></a> <a href="https://github.com/FrancoStino"><img style="border:1px solid white;border-radius:5px" src="https://github-profile-summary-cards.vercel.app/api/cards/most-commit-language?username=FrancoStino&theme=tokyonight" alt="Most used Language By Commit Chart" /></a></p>
 </details>
 
