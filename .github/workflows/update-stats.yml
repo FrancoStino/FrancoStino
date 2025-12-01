@@ -230,5 +230,5 @@ jobs:
           echo "Waiting for PR #$PR_NUMBER to be mergeable..."
           sleep 10
 
-          gh pr merge "$PR_NUMBER" --merge --delete-branch
+          gh pr merge "$PR_NUMBER" --merge
           echo "✅ PR #$PR_NUMBER merged successfully"
