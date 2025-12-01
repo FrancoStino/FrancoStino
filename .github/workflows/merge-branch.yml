@@ -12,21 +12,23 @@ permissions:
 jobs:
   merge-main-to-develop:
     runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success'
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
-
+      
       - name: Configure Git
         run: |
-          git config user.name Davide Ladisa
-          git config user.email info@davideladisa.it
-
+          git config user.name "Davide Ladisa"
+          git config user.email "info@davideladisa.it"
+      
       - name: Merge main to develop
         run: |
           git checkout develop
-          git merge origin/main
-
+          git merge origin/main --no-ff -m "Sync: merge main to develop [skip ci]"
+      
       - name: Push changes
         run: git push origin develop
