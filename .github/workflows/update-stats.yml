@@ -170,13 +170,14 @@ jobs:
               --body "update"
 
             PR_NUMBER=$(gh pr list --base main --head develop --json number --jq '.[0].number')
+            echo "PR created: #$PR_NUMBER"
           else
             PR_NUMBER=$EXISTING_PR
             echo "Using existing PR #$PR_NUMBER"
           fi
 
           echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
-          echo "PR created/updated: #$PR_NUMBER"
+          echo "Final PR number: $PR_NUMBER"
 
   auto-approve:
     needs: generate
@@ -208,15 +209,24 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         run: |
-          PR_NUMBER=${{ needs.generate.outputs.pr_number }}
+          echo "Debug: PR_NUMBER from output = '${{ needs.generate.outputs.pr_number }}'"
+          
+          PR_NUMBER="${{ needs.generate.outputs.pr_number }}"
           
           if [ -z "$PR_NUMBER" ]; then
-            echo "❌ PR_NUMBER is empty, cannot merge"
-            exit 1
+            echo "❌ PR_NUMBER is empty, trying to find PR manually..."
+            PR_NUMBER=$(gh pr list --base main --head develop --json number --jq '.[0].number // empty')
+            
+            if [ -z "$PR_NUMBER" ]; then
+              echo "❌ No PR found, cannot merge"
+              exit 1
+            fi
+            
+            echo "Found PR #$PR_NUMBER"
           fi
           
           echo "Waiting for PR #$PR_NUMBER to be mergeable..."
-          sleep 5
+          sleep 10
 
           gh pr merge "$PR_NUMBER" --merge --delete-branch
           echo "✅ PR #$PR_NUMBER merged successfully"
