@@ -19,6 +19,9 @@ jobs:
   generate:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    if: github.actor != 'github-actions[bot]'
+    outputs:
+      pr_number: ${{ steps.create-pr.outputs.pr_number }}
 
     env:
       GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
@@ -177,7 +180,7 @@ jobs:
 
   auto-approve:
     needs: generate
-    if: github.event_name == 'pull_request_target'
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -188,10 +191,11 @@ jobs:
         with:
           github-token: ${{ secrets.WORKFLOW_TOKEN }}
           review-message: "✅ Auto-approved: All GitHub stats updated successfully"
+          pull-request-number: ${{ needs.generate.outputs.pr_number }}
 
   auto-merge:
     needs: auto-approve
-    if: github.event_name == 'pull_request_target'
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
@@ -201,7 +205,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         run: |
-          PR_NUMBER=${{ github.event.pull_request.number }}
+          PR_NUMBER=${{ needs.generate.outputs.pr_number }}
           echo "Waiting for PR #$PR_NUMBER to be mergeable..."
           sleep 5
 
