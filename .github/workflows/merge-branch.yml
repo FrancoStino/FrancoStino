@@ -13,14 +13,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v6
         with:
-          fetch-depth: 0
+          fetch-depth: 0  # Full history for merge
+      - name: Fetch all remote branches
+        run: |
+          git fetch origin main develop --depth=0 --force
       - name: Configure Git
         run: |
-          git config user.name Davide Ladisa
-          git config user.email info@davideladisa.it
-      - name: Merge main to develop
+          git config user.name "Davide Ladisa"
+          git config user.email "info@davideladisa.it"
+      - name: Merge main to develop safely
         run: |
           git checkout develop
-          git merge origin/main
+          git pull origin develop --rebase  # Sync with latest remote develop
+          if ! git merge origin/main --no-ff -m "Sync main to develop"; then
+            echo "Merge conflict detected - aborting"
+            git merge --abort
+            exit 1
+          fi
       - name: Push changes
         run: git push origin develop
