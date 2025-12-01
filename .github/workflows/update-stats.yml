@@ -7,9 +7,9 @@ on:
   push:
     branches:
       - main
-  # CRITICO: per auto-approve delle PR create dal workflow
   pull_request_target:
-    branches: [main]
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -21,15 +21,12 @@ jobs:
     timeout-minutes: 10
 
     env:
-      # Token personale per gh CLI (attribuisce azioni al tuo utente)
       GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
 
     steps:
-      # 1. Checkout codice
       - name: 1. Checkout Main Branch
         uses: actions/checkout@v3
 
-      # 2. Crea develop se non esiste
       - name: 2. Create develop branch if not exists
         run: |
           git fetch origin
@@ -40,7 +37,6 @@ jobs:
           git checkout develop
           git pull origin develop
 
-      # 3. Crea cartella assets se non esiste
       - name: 3. Create assets directory if not exists
         run: |
           if [ ! -d "assets" ]; then
@@ -49,7 +45,6 @@ jobs:
             echo "This directory contains auto-generated GitHub stats and visualizations." >> assets/README.md
           fi
 
-      # 4. Snake Animations
       - name: 4. Generate GitHub Contributions Snake Animations
         uses: Platane/snk/svg-only@v3
         with:
@@ -60,7 +55,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # 5. Trophies
       - name: 5. Fetch GitHub Trophies
         run: |
           curl -f --connect-timeout 30 --retry 3 --retry-delay 5 \
@@ -68,7 +62,6 @@ jobs:
             "https://github-profile-trophy.vercel.app/?username=${{ github.repository_owner }}&theme=onedark&no-frame=true&no-bg=true&margin-w=10&column=3" \
             || echo "Failed to fetch Trophies."
 
-      # 6. Stats
       - name: 6. Fetch GitHub Stats
         run: |
           curl -f --connect-timeout 30 --retry 3 --retry-delay 5 \
@@ -76,7 +69,6 @@ jobs:
             "https://github-readme-stats-rose-eight-73.vercel.app/api?username=${{ github.repository_owner }}&show_icons=true&include_all_commits=true&theme=tokyonight&show=reviews,prs_merged&hide=issues,contribs&count_private=true" \
             || echo "Failed to fetch GitHub Stats."
 
-      # 7. Linguaggi
       - name: 7. Fetch Top Languages
         run: |
           curl -f --connect-timeout 30 --retry 3 --retry-delay 5 \
@@ -84,7 +76,6 @@ jobs:
             "https://github-readme-stats-rose-eight-73.vercel.app/api/top-langs/?username=${{ github.repository_owner }}&langs_count=10&layout=compact&theme=tokyonight&hide_border=false&include_all_commits=true&count_private=true" \
             || echo "Failed to fetch Top Languages."
 
-      # 8. Streak
       - name: 8. Fetch GitHub Streak
         run: |
           curl -f --connect-timeout 30 --retry 3 --retry-delay 5 \
@@ -92,7 +83,6 @@ jobs:
             "https://github-readme-streak-stats.herokuapp.com/?user=${{ github.repository_owner }}&theme=tokyonight&hide_border=false" \
             || echo "Failed to fetch GitHub Streak."
 
-      # 9. Activity graph
       - name: 9. Fetch Activity Graph
         run: |
           curl -f --connect-timeout 30 --retry 3 --retry-delay 5 \
@@ -100,13 +90,11 @@ jobs:
             "https://github-readme-activity-graph.vercel.app/graph?username=${{ github.repository_owner }}&custom_title=⚡%20Activity%20Graph&days=30&area=true&radius=8&hide_border=true&height=350&theme=react-dark&bg_color=050608&color=ffffff&title_color=ffffff&line=3572a5&point=ffffff&area_color=3572a5" \
             || echo "Failed to fetch Activity Graph."
 
-      # 10. Configura git locale
       - name: 10. Configure Git (bot for commits)
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
 
-      # 11–18 Commit assets
       - name: 11. Commit Snake Animation (Light)
         run: |
           if [ -f "assets/github-snake.svg" ]; then
@@ -163,20 +151,15 @@ jobs:
             git diff --staged --quiet || git commit -m "📝 Update: Assets README"
           fi
 
-      # 19. Push develop
       - name: 19. Push to develop branch
         run: git push origin develop
 
-      # 20. Create/Update PR (FIX MULTILINE BODY)
       - name: 20. Create Pull Request
         id: create-pr
         run: |
-          # Controlla se esiste una PR aperta
           EXISTING_PR=$(gh pr list --base main --head develop --json number --jq '.[0].number // empty')
 
           if [ -z "$EXISTING_PR" ]; then
-
-            # Corpo PR multilinea con EOF (corretto per YAML)
             BODY=$(cat << 'EOF'
 Automated update of GitHub statistics and visualizations.
 
@@ -192,7 +175,6 @@ Automated update of GitHub statistics and visualizations.
 *This PR was automatically created by GitHub Actions*
 EOF
 )
-
             gh pr create \
               --base main \
               --head develop \
@@ -200,7 +182,6 @@ EOF
               --body "$BODY"
 
             PR_NUMBER=$(gh pr list --base main --head develop --json number --jq '.[0].number')
-
           else
             PR_NUMBER=$EXISTING_PR
             echo "Using existing PR #$PR_NUMBER"
@@ -209,8 +190,6 @@ EOF
           echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
           echo "PR created/updated: #$PR_NUMBER"
 
-
-  ### AUTO APPROVE
   auto-approve:
     needs: generate
     if: github.event_name == 'pull_request_target'
@@ -225,7 +204,6 @@ EOF
           github-token: ${{ secrets.WORKFLOW_TOKEN }}
           review-message: "✅ Auto-approved: All GitHub stats updated successfully"
 
-  ### AUTO MERGE
   auto-merge:
     needs: auto-approve
     if: github.event_name == 'pull_request_target'
@@ -239,4 +217,12 @@ EOF
           GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         run: |
           PR_NUMBER=${{ github.event.pull_request.number }}
-          echo "Waiting for PR #$PR_NUMBER to be mergeable..._
+          echo "Waiting for PR #$PR_NUMBER to be mergeable..."
+          sleep 5
+
+          if gh pr view "$PR_NUMBER" --json mergeable --jq '.mergeable == "MERGEABLE"' | grep -q true; then
+            gh pr merge "$PR_NUMBER" --merge --auto --delete-branch
+            echo "✅ PR #$PR_NUMBER merged successfully"
+          else
+            echo "❌ PR #$PR_NUMBER not mergeable yet, will retry next run"
+          fi
