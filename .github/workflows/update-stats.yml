@@ -8,7 +8,6 @@ on:
     branches:
       - main
 
-
 permissions:
   contents: write
   pull-requests: write
@@ -232,5 +231,5 @@ jobs:
           echo "Waiting for PR #$PR_NUMBER to be mergeable..."
           sleep 10
 
-          gh pr merge "$PR_NUMBER" --merge
+          gh pr merge "$PR_NUMBER" --merge --subject "Merge pull request #$PR_NUMBER [skip ci]"
           echo "✅ PR #$PR_NUMBER merged successfully"
