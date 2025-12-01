@@ -31,6 +31,8 @@ jobs:
     steps:
       - name: 1. Checkout Main Branch
         uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.WORKFLOW_TOKEN }}
 
       - name: 2. Create develop branch if not exists
         run: |
@@ -97,7 +99,7 @@ jobs:
 
       - name: 10. Configure Git (your account for commits)
         run: |
-          git config --local user.email "info@davideladisa.it"
+          git config --local user.email "davideladisa@live.it"
           git config --local user.name "Davide Ladisa"
 
       - name: 11. Commit Snake Animation (Light)
@@ -161,6 +163,8 @@ jobs:
 
       - name: 20. Create Pull Request
         id: create-pr
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           EXISTING_PR=$(gh pr list --base main --head develop --json number --jq '.[0].number // empty')
 
