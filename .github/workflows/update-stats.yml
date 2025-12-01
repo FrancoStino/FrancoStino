@@ -99,7 +99,7 @@ jobs:
 
       - name: 10. Configure Git (your account for commits)
         run: |
-          git config --local user.email "davideladisa@live.it"
+          git config --local user.email "info@davideladisa.it"
           git config --local user.name "Davide Ladisa"
 
       - name: 11. Commit Snake Animation (Light)
