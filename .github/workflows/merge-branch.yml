@@ -1,0 +1,32 @@
+name: Sync multiple branches
+
+on:
+  workflow_run:
+    workflows: [ "GitHub Readme CI" ]
+    types:
+      - completed
+
+permissions:
+  contents: write
+
+jobs:
+  merge-main-to-develop:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name Davide Ladisa
+          git config user.email info@davideladisa.it
+
+      - name: Merge main to develop
+        run: |
+          git checkout develop
+          git merge origin/main
+
+      - name: Push changes
+        run: git push origin develop
