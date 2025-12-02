@@ -87,19 +87,6 @@ Do you like numbers and charts? Let's see some then:
   </p>
 </details>
 
-<details>
-  <summary>🐍 Contribution Snake</summary>
-  <br/>
-  <p align="center">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="./assets/github-snake-dark.svg">
-      <source media="(prefers-color-scheme: light)" srcset="./assets/github-snake.svg">
-      <img alt="github contribution grid snake animation" src="./assets/github-snake.svg">
-    </picture>
-  </p>
-</details>
-
-<details>
   <summary>🚀 Languages & Technologies</summary>
   <br/>
   <p>
@@ -109,7 +96,6 @@ Do you like numbers and charts? Let's see some then:
         <a href="https://www.typescriptlang.org/" target="_blank"> <img src="https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white" alt="typescript"/></a>
         <a href="https://www.php.net/" target="_blank"> <img src="https://img.shields.io/badge/php-%23777BB4.svg?style=for-the-badge&logo=php&logoColor=white" alt="php"/></a>
         <a href="https://www.gnu.org/software/bash/" target="_blank"> <img src="https://img.shields.io/badge/shell_script-%23121011.svg?style=for-the-badge&logo=gnu-bash&logoColor=white" alt="shell script"/></a>
-        <a href="https://daringfireball.net/projects/markdown/" target="_blank"> <img src="https://img.shields.io/badge/markdown-%23000000.svg?style=for-the-badge&logo=markdown&logoColor=white" alt="markdown"/></a>
   </p>
 </details>
 
