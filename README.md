@@ -87,18 +87,6 @@ Do you like numbers and charts? Let's see some then:
   </p>
 </details>
 
-  <summary>🚀 Languages & Technologies</summary>
-  <br/>
-  <p>
-        <a href="https://developer.mozilla.org/en-US/docs/Web/CSS" target="_blank"> <img  src="https://img.shields.io/badge/css3-%231572B6.svg?style=for-the-badge&logo=css3&logoColor=white" alt="css3"/></a>
-        <a href="https://developer.mozilla.org/en-US/docs/Web/HTML" target="_blank"> <img src="https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white" alt="html5"/></a>
-        <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank"> <img src="https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E" alt="javascript"/></a>
-        <a href="https://www.typescriptlang.org/" target="_blank"> <img src="https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white" alt="typescript"/></a>
-        <a href="https://www.php.net/" target="_blank"> <img src="https://img.shields.io/badge/php-%23777BB4.svg?style=for-the-badge&logo=php&logoColor=white" alt="php"/></a>
-        <a href="https://www.gnu.org/software/bash/" target="_blank"> <img src="https://img.shields.io/badge/shell_script-%23121011.svg?style=for-the-badge&logo=gnu-bash&logoColor=white" alt="shell script"/></a>
-  </p>
-</details>
-
 <details>
   <summary>🗄️ Databases</summary>
   <br/>
