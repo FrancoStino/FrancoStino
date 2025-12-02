@@ -57,14 +57,6 @@ Do you like numbers and charts? Let's see some then:
       <img src="./assets/top-languages.svg" alt="Most used Language Chart" />
     </a>
   </p>
-  <p align="center">
-    <a href="https://github.com/FrancoStino">
-      <img style="border:1px solid white;border-radius:5px" src="https://github-profile-summary-cards.vercel.app/api/cards/repos-per-language?username=FrancoStino&theme=tokyonight" alt="Most used Language By Repo Chart" />
-    </a>
-    <a href="https://github.com/FrancoStino">
-      <img style="border:1px solid white;border-radius:5px" src="https://github-profile-summary-cards.vercel.app/api/cards/most-commit-language?username=FrancoStino&theme=tokyonight" alt="Most used Language By Commit Chart" />
-    </a>
-  </p>
 </details>
 
 <details>
