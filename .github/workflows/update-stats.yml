@@ -55,7 +55,7 @@ jobs:
           git checkout develop
           git pull origin develop
 
-      - name: 3. Create "before-pull" branch if not exists
+      - name: 3. Create before-pull branch if not exists
         run: |
           git fetch origin
           if ! git rev-parse --verify origin/before-pull >/dev/null 2>&1; then
@@ -133,46 +133,47 @@ jobs:
             echo "No changes to commit"
           fi
 
-      - name: 13. Create First PR (before-pull → develop)
+      - name: 13. Create First PR (before-pull to develop)
         id: create-pr-before
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           EXISTING_PR=$(gh pr list --base develop --head before-pull --json number --jq '.[0].number // empty')
-
+          
           if [ -z "$EXISTING_PR" ]; then
             ISSUE_REF=""
             if [ -n "${{ steps.get-issue.outputs.issue_number }}" ]; then
               ISSUE_REF="Closes #${{ steps.get-issue.outputs.issue_number }}"
             fi
             
+            PR_BODY="Aggiornamento automatico delle statistiche GitHub.
+          
+          $ISSUE_REF
+          
+          Questa PR contiene:
+          - 🐍 Snake animations
+          - 🏆 GitHub trophies
+          - 📊 GitHub stats
+          - ⌨️ Top languages
+          - 🔥 GitHub streak
+          - ⚡ Activity graph"
+            
             gh pr create \
               --base develop \
               --head before-pull \
               --title "🔄 First Update: Stats to Develop" \
-              --body "Aggiornamento automatico delle statistiche GitHub.
-
-$ISSUE_REF
-
-Questa PR contiene:
-- 🐍 Snake animations
-- 🏆 GitHub trophies
-- 📊 GitHub stats
-- ⌨️ Top languages
-- 🔥 GitHub streak
-- ⚡ Activity graph"
-
+              --body "$PR_BODY"
+          
             PR_NUMBER=$(gh pr list --base develop --head before-pull --json number --jq '.[0].number')
             echo "PR created: #$PR_NUMBER"
             
-            # Assegna la PR a te
             gh pr edit "$PR_NUMBER" --add-assignee "${{ github.repository_owner }}"
             
           else
             PR_NUMBER=$EXISTING_PR
             echo "Using existing PR #$PR_NUMBER"
           fi
-
+          
           echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
 
       - name: 14. Checkout develop branch
@@ -180,31 +181,30 @@ Questa PR contiene:
           git checkout develop
           git pull origin develop
 
-      - name: 15. Create Second PR (develop → main)
+      - name: 15. Create Second PR (develop to main)
         id: create-pr-main
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           EXISTING_PR=$(gh pr list --base main --head develop --json number --jq '.[0].number // empty')
-
+          
           if [ -z "$EXISTING_PR" ]; then
             gh pr create \
               --base main \
               --head develop \
               --title "🤖 Auto-update: GitHub Stats & Visualizations" \
               --body "Aggiornamento automatico da develop a main"
-
+          
             PR_NUMBER=$(gh pr list --base main --head develop --json number --jq '.[0].number')
             echo "PR created: #$PR_NUMBER"
             
-            # Assegna la PR a FrancoStino
             gh pr edit "$PR_NUMBER" --add-assignee FrancoStino
             
           else
             PR_NUMBER=$EXISTING_PR
             echo "Using existing PR #$PR_NUMBER"
           fi
-
+          
           echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
 
   review-and-merge-first-pr:
@@ -225,13 +225,11 @@ Questa PR contiene:
         run: |
           PR_NUMBER="${{ needs.generate.outputs.pr_number_before }}"
           
-          # Approva la PR
           gh pr review "$PR_NUMBER" --approve --body "✅ Reviewed and approved automatically"
           
           echo "Waiting for PR to be mergeable..."
           sleep 10
           
-          # Merge la PR
           gh pr merge "$PR_NUMBER" --merge --subject "Merge PR #$PR_NUMBER: Stats update [skip ci]"
           echo "✅ First PR #$PR_NUMBER merged successfully"
 
@@ -270,6 +268,6 @@ Questa PR contiene:
           
           echo "Waiting for PR #$PR_NUMBER to be mergeable..."
           sleep 10
-
+          
           gh pr merge "$PR_NUMBER" --merge --subject "Merge pull request #$PR_NUMBER [skip ci]"
           echo "✅ Second PR #$PR_NUMBER merged successfully"
