@@ -138,7 +138,32 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          EXISTING_PR=$(gh pr list --base develop --head before-pull --json number --jq '.[0].number // empty')
+          # Funzione di retry
+          retry_command() {
+            local max_attempts=5
+            local timeout=30
+            local attempt=1
+            local exitCode=0
+            
+            while (( attempt <= max_attempts )); do
+              echo "Attempt $attempt of $max_attempts..."
+              if timeout $timeout "$@"; then
+                return 0
+              else
+                exitCode=$?
+                if (( attempt < max_attempts )); then
+                  echo "Command failed, waiting 10 seconds before retry..."
+                  sleep 10
+                fi
+              fi
+              ((attempt++))
+            done
+            
+            return $exitCode
+          }
+          
+          echo "Checking for existing PR..."
+          EXISTING_PR=$(retry_command gh pr list --base develop --head before-pull --json number --jq '.[0].number // empty')
           
           if [ -z "$EXISTING_PR" ]; then
             ISSUE_REF=""
@@ -158,16 +183,19 @@ jobs:
           - 🔥 GitHub streak
           - ⚡ Activity graph"
             
-            gh pr create \
+            echo "Creating new PR..."
+            retry_command gh pr create \
               --base develop \
               --head before-pull \
               --title "🔄 First Update: Stats to Develop" \
               --body "$PR_BODY"
           
-            PR_NUMBER=$(gh pr list --base develop --head before-pull --json number --jq '.[0].number')
+            echo "Getting PR number..."
+            PR_NUMBER=$(retry_command gh pr list --base develop --head before-pull --json number --jq '.[0].number')
             echo "PR created: #$PR_NUMBER"
             
-            gh pr edit "$PR_NUMBER" --add-assignee "${{ github.repository_owner }}"
+            echo "Assigning PR to repository owner..."
+            retry_command gh pr edit "$PR_NUMBER" --add-assignee "${{ github.repository_owner }}"
             
           else
             PR_NUMBER=$EXISTING_PR
@@ -186,19 +214,47 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          EXISTING_PR=$(gh pr list --base main --head develop --json number --jq '.[0].number // empty')
+          # Funzione di retry
+          retry_command() {
+            local max_attempts=5
+            local timeout=30
+            local attempt=1
+            local exitCode=0
+            
+            while (( attempt <= max_attempts )); do
+              echo "Attempt $attempt of $max_attempts..."
+              if timeout $timeout "$@"; then
+                return 0
+              else
+                exitCode=$?
+                if (( attempt < max_attempts )); then
+                  echo "Command failed, waiting 10 seconds before retry..."
+                  sleep 10
+                fi
+              fi
+              ((attempt++))
+            done
+            
+            return $exitCode
+          }
+          
+          echo "Checking for existing PR..."
+          EXISTING_PR=$(retry_command gh pr list --base main --head develop --json number --jq '.[0].number // empty')
           
           if [ -z "$EXISTING_PR" ]; then
-            gh pr create \
+            echo "Creating new PR..."
+            retry_command gh pr create \
               --base main \
               --head develop \
               --title "🤖 Auto-update: GitHub Stats & Visualizations" \
               --body "Aggiornamento automatico da develop a main"
           
-            PR_NUMBER=$(gh pr list --base main --head develop --json number --jq '.[0].number')
+            echo "Getting PR number..."
+            PR_NUMBER=$(retry_command gh pr list --base main --head develop --json number --jq '.[0].number')
             echo "PR created: #$PR_NUMBER"
             
-            gh pr edit "$PR_NUMBER" --add-assignee FrancoStino
+            echo "Assigning PR to FrancoStino..."
+            retry_command gh pr edit "$PR_NUMBER" --add-assignee FrancoStino
             
           else
             PR_NUMBER=$EXISTING_PR
@@ -223,14 +279,40 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         run: |
+          # Funzione di retry
+          retry_command() {
+            local max_attempts=5
+            local timeout=30
+            local attempt=1
+            local exitCode=0
+            
+            while (( attempt <= max_attempts )); do
+              echo "Attempt $attempt of $max_attempts..."
+              if timeout $timeout "$@"; then
+                return 0
+              else
+                exitCode=$?
+                if (( attempt < max_attempts )); then
+                  echo "Command failed, waiting 10 seconds before retry..."
+                  sleep 10
+                fi
+              fi
+              ((attempt++))
+            done
+            
+            return $exitCode
+          }
+          
           PR_NUMBER="${{ needs.generate.outputs.pr_number_before }}"
           
-          gh pr review "$PR_NUMBER" --approve --body "✅ Reviewed and approved automatically"
+          echo "Approving PR #$PR_NUMBER..."
+          retry_command gh pr review "$PR_NUMBER" --approve --body "✅ Reviewed and approved automatically"
           
           echo "Waiting for PR to be mergeable..."
           sleep 10
           
-          gh pr merge "$PR_NUMBER" --merge --subject "Merge PR #$PR_NUMBER: Stats update [skip ci]"
+          echo "Merging PR #$PR_NUMBER..."
+          retry_command gh pr merge "$PR_NUMBER" --merge --subject "Merge PR #$PR_NUMBER: Stats update [skip ci]"
           echo "✅ First PR #$PR_NUMBER merged successfully"
 
   auto-approve-second-pr:
@@ -264,10 +346,35 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         run: |
+          # Funzione di retry
+          retry_command() {
+            local max_attempts=5
+            local timeout=30
+            local attempt=1
+            local exitCode=0
+            
+            while (( attempt <= max_attempts )); do
+              echo "Attempt $attempt of $max_attempts..."
+              if timeout $timeout "$@"; then
+                return 0
+              else
+                exitCode=$?
+                if (( attempt < max_attempts )); then
+                  echo "Command failed, waiting 10 seconds before retry..."
+                  sleep 10
+                fi
+              fi
+              ((attempt++))
+            done
+            
+            return $exitCode
+          }
+          
           PR_NUMBER="${{ needs.generate.outputs.pr_number_main }}"
           
           echo "Waiting for PR #$PR_NUMBER to be mergeable..."
           sleep 10
           
-          gh pr merge "$PR_NUMBER" --merge --subject "Merge pull request #$PR_NUMBER [skip ci]"
+          echo "Merging PR #$PR_NUMBER..."
+          retry_command gh pr merge "$PR_NUMBER" --merge --subject "Merge pull request #$PR_NUMBER [skip ci]"
           echo "✅ Second PR #$PR_NUMBER merged successfully"
