@@ -23,7 +23,6 @@ jobs:
       !contains(github.event.head_commit.message, 'Auto-update: GitHub Stats'))
     outputs:
       pr_number_before: ${{ steps.create-pr-before.outputs.pr_number }}
-      pr_number_main: ${{ steps.create-pr-main.outputs.pr_number }}
       issue_number: ${{ steps.get-issue.outputs.issue_number }}
 
     env:
@@ -204,65 +203,6 @@ jobs:
           
           echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
 
-      - name: 14. Checkout develop branch
-        run: |
-          git checkout develop
-          git pull origin develop
-
-      - name: 15. Create Second PR (develop to main)
-        id: create-pr-main
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          # Funzione di retry
-          retry_command() {
-            local max_attempts=5
-            local timeout=30
-            local attempt=1
-            local exitCode=0
-            
-            while (( attempt <= max_attempts )); do
-              echo "Attempt $attempt of $max_attempts..." >&2
-              if timeout $timeout "$@"; then
-                return 0
-              else
-                exitCode=$?
-                if (( attempt < max_attempts )); then
-                  echo "Command failed, waiting 10 seconds before retry..." >&2
-                  sleep 10
-                fi
-              fi
-              ((attempt++))
-            done
-            
-            return $exitCode
-          }
-          
-          echo "Checking for existing PR..."
-          EXISTING_PR=$(retry_command gh pr list --base main --head develop --json number --jq '.[0].number // empty')
-          
-          if [ -z "$EXISTING_PR" ]; then
-            echo "Creating new PR..."
-            retry_command gh pr create \
-              --base main \
-              --head develop \
-              --title "🤖 Auto-update: GitHub Stats & Visualizations" \
-              --body "Aggiornamento automatico da develop a main"
-          
-            echo "Getting PR number..."
-            PR_NUMBER=$(retry_command gh pr list --base main --head develop --json number --jq '.[0].number')
-            echo "PR created: #$PR_NUMBER"
-            
-            echo "Assigning PR to FrancoStino..."
-            retry_command gh pr edit "$PR_NUMBER" --add-assignee FrancoStino
-            
-          else
-            PR_NUMBER=$EXISTING_PR
-            echo "Using existing PR #$PR_NUMBER"
-          fi
-          
-          echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
-
   review-and-merge-first-pr:
     needs: generate
     if: needs.generate.outputs.pr_number_before != ''
@@ -314,67 +254,3 @@ jobs:
           echo "Merging PR #$PR_NUMBER..."
           retry_command gh pr merge "$PR_NUMBER" --merge --subject "Merge PR #$PR_NUMBER: Stats update [skip ci]"
           echo "✅ First PR #$PR_NUMBER merged successfully"
-
-  auto-approve-second-pr:
-    needs: [generate, review-and-merge-first-pr]
-    if: needs.generate.outputs.pr_number_main != ''
-    runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
-
-    steps:
-      - name: Auto-approve second PR
-        uses: hmarr/auto-approve-action@v4
-        with:
-          github-token: ${{ secrets.WORKFLOW_TOKEN }}
-          review-message: "✅ Auto-approved: All GitHub stats updated successfully"
-          pull-request-number: ${{ needs.generate.outputs.pr_number_main }}
-
-  auto-merge-second-pr:
-    needs: [generate, auto-approve-second-pr]
-    if: needs.generate.outputs.pr_number_main != ''
-    runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
-      contents: write
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - name: Auto-merge second PR
-        env:
-          GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
-        run: |
-          # Funzione di retry
-          retry_command() {
-            local max_attempts=5
-            local timeout=30
-            local attempt=1
-            local exitCode=0
-            
-            while (( attempt <= max_attempts )); do
-              echo "Attempt $attempt of $max_attempts..." >&2
-              if timeout $timeout "$@"; then
-                return 0
-              else
-                exitCode=$?
-                if (( attempt < max_attempts )); then
-                  echo "Command failed, waiting 10 seconds before retry..." >&2
-                  sleep 10
-                fi
-              fi
-              ((attempt++))
-            done
-            
-            return $exitCode
-          }
-          
-          PR_NUMBER="${{ needs.generate.outputs.pr_number_main }}"
-          
-          echo "Waiting for PR #$PR_NUMBER to be mergeable..."
-          sleep 10
-          
-          echo "Merging PR #$PR_NUMBER..."
-          retry_command gh pr merge "$PR_NUMBER" --merge --subject "Merge pull request #$PR_NUMBER [skip ci]"
-          echo "✅ Second PR #$PR_NUMBER merged successfully"
