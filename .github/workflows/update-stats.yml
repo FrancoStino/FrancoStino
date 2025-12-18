@@ -68,7 +68,7 @@ jobs:
         run: |
           curl -f --connect-timeout 30 --retry 3 --retry-delay 5 \
             -o "./assets/github-stats.svg" \
-            "https://github-readme-stats-rose-eight-73.vercel.app/api?username=${{ github.repository_owner }}&show_icons=true&include_all_commits=true&theme=tokyonight&show=issues,reviews,prs_merged&hide=issues,contribs&count_private=true" \
+            "https://github-readme-stats-rose-eight-73.vercel.app/api?username=${{ github.repository_owner }}&show_icons=true&include_all_commits=true&theme=tokyonight&show=reviews,prs_merged&count_private=true" \
             || echo "Failed to fetch GitHub Stats."
 
       - name: 7. Fetch Top Languages
