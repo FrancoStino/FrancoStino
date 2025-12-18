@@ -5,29 +5,45 @@ on:
   push:
     branches:
       - main
+  issues:
+    types: [opened, edited]
 
 permissions:
   contents: write
   pull-requests: write
+  issues: write
 
 jobs:
   generate:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     if: |
-      github.actor != 'github-actions[bot]' && 
-      !contains(github.event.head_commit.message, 'Auto-update: GitHub Stats')
+      (github.event_name == 'issues' && contains(github.event.issue.title, 'Update')) ||
+      (github.event_name != 'issues' && github.actor != 'github-actions[bot]' && 
+      !contains(github.event.head_commit.message, 'Auto-update: GitHub Stats'))
     outputs:
-      pr_number: ${{ steps.create-pr.outputs.pr_number }}
+      pr_number_before: ${{ steps.create-pr-before.outputs.pr_number }}
+      pr_number_main: ${{ steps.create-pr-main.outputs.pr_number }}
+      issue_number: ${{ steps.get-issue.outputs.issue_number }}
 
     env:
       GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
 
     steps:
+      - name: 0. Get Issue Number
+        id: get-issue
+        run: |
+          if [ "${{ github.event_name }}" == "issues" ]; then
+            echo "issue_number=${{ github.event.issue.number }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "issue_number=" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: 1. Checkout Main Branch
         uses: actions/checkout@v6
         with:
           token: ${{ secrets.WORKFLOW_TOKEN }}
+          fetch-depth: 0
 
       - name: 2. Create develop branch if not exists
         run: |
@@ -39,7 +55,17 @@ jobs:
           git checkout develop
           git pull origin develop
 
-      - name: 3. Create assets directory if not exists
+      - name: 3. Create before-pull branch if not exists
+        run: |
+          git fetch origin
+          if ! git rev-parse --verify origin/before-pull >/dev/null 2>&1; then
+            git checkout -b before-pull
+            git push origin before-pull
+          fi
+          git checkout before-pull
+          git pull origin before-pull
+
+      - name: 4. Create assets directory if not exists
         run: |
           if [ ! -d "assets" ]; then
             mkdir -p assets
@@ -47,7 +73,7 @@ jobs:
             echo "This directory contains auto-generated GitHub stats and visualizations." >> assets/README.md
           fi
 
-      - name: 4. Generate GitHub Contributions Snake Animations
+      - name: 5. Generate GitHub Contributions Snake Animations
         uses: Platane/snk/svg-only@v3
         with:
           github_user_name: ${{ github.repository_owner }}
@@ -57,177 +83,191 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: 5. Fetch GitHub Trophies
+      - name: 6. Fetch GitHub Trophies
         run: |
           curl -f --connect-timeout 30 --retry 3 --retry-delay 5 \
             -o "./assets/github-trophies.svg" \
             "https://github-profile-trophy.vercel.app/?username=${{ github.repository_owner }}&theme=onedark&no-frame=true&no-bg=true&margin-w=10&column=3" \
             || echo "Failed to fetch Trophies."
 
-      - name: 6. Fetch GitHub Stats
+      - name: 7. Fetch GitHub Stats
         run: |
           curl -f --connect-timeout 30 --retry 3 --retry-delay 5 \
             -o "./assets/github-stats.svg" \
             "https://github-readme-stats-rose-eight-73.vercel.app/api?username=${{ github.repository_owner }}&show_icons=true&include_all_commits=true&theme=tokyonight&show=reviews,prs_merged&count_private=true" \
             || echo "Failed to fetch GitHub Stats."
 
-      - name: 7. Fetch Top Languages
+      - name: 8. Fetch Top Languages
         run: |
           curl -f --connect-timeout 30 --retry 3 --retry-delay 5 \
             -o "./assets/top-languages.svg" \
             "https://github-readme-stats-rose-eight-73.vercel.app/api/top-langs/?username=${{ github.repository_owner }}&langs_count=10&layout=compact&theme=tokyonight&hide_border=false&include_all_commits=true&count_private=true" \
             || echo "Failed to fetch Top Languages."
 
-      - name: 8. Fetch GitHub Streak
+      - name: 9. Fetch GitHub Streak
         run: |
           curl -f --connect-timeout 30 --retry 3 --retry-delay 5 \
             -o "./assets/github-streak.svg" \
             "https://github-readme-streak-stats.herokuapp.com/?user=${{ github.repository_owner }}&theme=tokyonight&hide_border=false" \
             || echo "Failed to fetch GitHub Streak."
 
-      - name: 9. Fetch Activity Graph
+      - name: 10. Fetch Activity Graph
         run: |
           curl -f --connect-timeout 30 --retry 3 --retry-delay 5 \
             -o "./assets/activity-graph.svg" \
             "https://github-readme-activity-graph.vercel.app/graph?username=${{ github.repository_owner }}&custom_title=⚡%20Activity%20Graph&days=30&area=true&radius=8&hide_border=true&height=350&theme=react-dark&bg_color=050608&color=ffffff&title_color=ffffff&line=3572a5&point=ffffff&area_color=3572a5" \
             || echo "Failed to fetch Activity Graph."
 
-      - name: 10. Configure Git (your account for commits)
+      - name: 11. Configure Git
         run: |
           git config --local user.email "info@davideladisa.it"
           git config --local user.name "Davide Ladisa"
 
-      - name: 11. Commit Snake Animation (Light)
+      - name: 12. Commit all assets to before-pull
         run: |
-          if [ -f "assets/github-snake.svg" ]; then
-            git add assets/github-snake.svg
-            git diff --staged --quiet || git commit -m "🐍 Update: GitHub Snake Animation (Light Mode)"
+          git add assets/
+          if ! git diff --staged --quiet; then
+            git commit -m "🤖 Auto-update: GitHub Stats & Visualizations"
+            git push origin before-pull
+          else
+            echo "No changes to commit"
           fi
 
-      - name: 12. Commit Snake Animation (Dark)
+      - name: 13. Create First PR (before-pull to develop)
+        id: create-pr-before
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [ -f "assets/github-snake-dark.svg" ]; then
-            git add assets/github-snake-dark.svg
-            git diff --staged --quiet || git commit -m "🐍 Update: GitHub Snake Animation (Dark Mode)"
+          EXISTING_PR=$(gh pr list --base develop --head before-pull --json number --jq '.[0].number // empty')
+          
+          if [ -z "$EXISTING_PR" ]; then
+            ISSUE_REF=""
+            if [ -n "${{ steps.get-issue.outputs.issue_number }}" ]; then
+              ISSUE_REF="Closes #${{ steps.get-issue.outputs.issue_number }}"
+            fi
+            
+            PR_BODY="Aggiornamento automatico delle statistiche GitHub.
+          
+          $ISSUE_REF
+          
+          Questa PR contiene:
+          - 🐍 Snake animations
+          - 🏆 GitHub trophies
+          - 📊 GitHub stats
+          - ⌨️ Top languages
+          - 🔥 GitHub streak
+          - ⚡ Activity graph"
+            
+            gh pr create \
+              --base develop \
+              --head before-pull \
+              --title "🔄 First Update: Stats to Develop" \
+              --body "$PR_BODY"
+          
+            PR_NUMBER=$(gh pr list --base develop --head before-pull --json number --jq '.[0].number')
+            echo "PR created: #$PR_NUMBER"
+            
+            gh pr edit "$PR_NUMBER" --add-assignee "${{ github.repository_owner }}"
+            
+          else
+            PR_NUMBER=$EXISTING_PR
+            echo "Using existing PR #$PR_NUMBER"
           fi
+          
+          echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
 
-      - name: 13. Commit GitHub Trophies
+      - name: 14. Checkout develop branch
         run: |
-          if [ -f "assets/github-trophies.svg" ]; then
-            git add assets/github-trophies.svg
-            git diff --staged --quiet || git commit -m "🏆 Update: GitHub Trophies"
-          fi
+          git checkout develop
+          git pull origin develop
 
-      - name: 14. Commit GitHub Stats
-        run: |
-          if [ -f "assets/github-stats.svg" ]; then
-            git add assets/github-stats.svg
-            git diff --staged --quiet || git commit -m "📊 Update: GitHub Stats"
-          fi
-
-      - name: 15. Commit Top Languages
-        run: |
-          if [ -f "assets/top-languages.svg" ]; then
-            git add assets/top-languages.svg
-            git diff --staged --quiet || git commit -m "⌨️ Update: Top Languages"
-          fi
-
-      - name: 16. Commit GitHub Streak
-        run: |
-          if [ -f "assets/github-streak.svg" ]; then
-            git add assets/github-streak.svg
-            git diff --staged --quiet || git commit -m "🔥 Update: GitHub Streak"
-          fi
-
-      - name: 17. Commit Activity Graph
-        run: |
-          if [ -f "assets/activity-graph.svg" ]; then
-            git add assets/activity-graph.svg
-            git diff --staged --quiet || git commit -m "⚡ Update: Activity Graph"
-          fi
-
-      - name: 18. Commit Assets README if new
-        run: |
-          if [ -f "assets/README.md" ]; then
-            git add assets/README.md
-            git diff --staged --quiet || git commit -m "📝 Update: Assets README"
-          fi
-
-      - name: 19. Push to develop branch
-        run: git push origin develop
-
-      - name: 20. Create Pull Request
-        id: create-pr
+      - name: 15. Create Second PR (develop to main)
+        id: create-pr-main
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           EXISTING_PR=$(gh pr list --base main --head develop --json number --jq '.[0].number // empty')
-
+          
           if [ -z "$EXISTING_PR" ]; then
             gh pr create \
               --base main \
               --head develop \
               --title "🤖 Auto-update: GitHub Stats & Visualizations" \
-              --body "update"
-
+              --body "Aggiornamento automatico da develop a main"
+          
             PR_NUMBER=$(gh pr list --base main --head develop --json number --jq '.[0].number')
             echo "PR created: #$PR_NUMBER"
+            
+            gh pr edit "$PR_NUMBER" --add-assignee FrancoStino
+            
           else
             PR_NUMBER=$EXISTING_PR
             echo "Using existing PR #$PR_NUMBER"
           fi
-
+          
           echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
-          echo "Final PR number: $PR_NUMBER"
 
-  auto-approve:
+  review-and-merge-first-pr:
     needs: generate
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
+    if: needs.generate.outputs.pr_number_before != ''
     runs-on: ubuntu-latest
     permissions:
       pull-requests: write
-
-    steps:
-      - name: Auto-approve PR
-        uses: hmarr/auto-approve-action@v4
-        with:
-          github-token: ${{ secrets.WORKFLOW_TOKEN }}
-          review-message: "✅ Auto-approved: All GitHub stats updated successfully"
-          pull-request-number: ${{ needs.generate.outputs.pr_number }}
-
-  auto-merge:
-    needs: auto-approve
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-    runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
+      contents: write
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
 
-      - name: Auto-merge approved PR
+      - name: Review and approve first PR
         env:
           GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         run: |
-          echo "Debug: PR_NUMBER from output = '${{ needs.generate.outputs.pr_number }}'"
+          PR_NUMBER="${{ needs.generate.outputs.pr_number_before }}"
           
-          PR_NUMBER="${{ needs.generate.outputs.pr_number }}"
+          gh pr review "$PR_NUMBER" --approve --body "✅ Reviewed and approved automatically"
           
-          if [ -z "$PR_NUMBER" ]; then
-            echo "❌ PR_NUMBER is empty, trying to find PR manually..."
-            PR_NUMBER=$(gh pr list --base main --head develop --json number --jq '.[0].number // empty')
-            
-            if [ -z "$PR_NUMBER" ]; then
-              echo "❌ No PR found, cannot merge"
-              exit 1
-            fi
-            
-            echo "Found PR #$PR_NUMBER"
-          fi
+          echo "Waiting for PR to be mergeable..."
+          sleep 10
+          
+          gh pr merge "$PR_NUMBER" --merge --subject "Merge PR #$PR_NUMBER: Stats update [skip ci]"
+          echo "✅ First PR #$PR_NUMBER merged successfully"
+
+  auto-approve-second-pr:
+    needs: [generate, review-and-merge-first-pr]
+    if: needs.generate.outputs.pr_number_main != ''
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+
+    steps:
+      - name: Auto-approve second PR
+        uses: hmarr/auto-approve-action@v4
+        with:
+          github-token: ${{ secrets.WORKFLOW_TOKEN }}
+          review-message: "✅ Auto-approved: All GitHub stats updated successfully"
+          pull-request-number: ${{ needs.generate.outputs.pr_number_main }}
+
+  auto-merge-second-pr:
+    needs: [generate, auto-approve-second-pr]
+    if: needs.generate.outputs.pr_number_main != ''
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Auto-merge second PR
+        env:
+          GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+        run: |
+          PR_NUMBER="${{ needs.generate.outputs.pr_number_main }}"
           
           echo "Waiting for PR #$PR_NUMBER to be mergeable..."
           sleep 10
-
+          
           gh pr merge "$PR_NUMBER" --merge --subject "Merge pull request #$PR_NUMBER [skip ci]"
-          echo "✅ PR #$PR_NUMBER merged successfully"
+          echo "✅ Second PR #$PR_NUMBER merged successfully"
