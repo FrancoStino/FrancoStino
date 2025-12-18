@@ -128,6 +128,7 @@ jobs:
           git add assets/
           if ! git diff --staged --quiet; then
             git commit -m "🤖 Auto-update: GitHub Stats & Visualizations"
+            git pull --rebase origin before-pull || true
             git push origin before-pull
           else
             echo "No changes to commit"
@@ -315,23 +316,8 @@ jobs:
           retry_command gh pr merge "$PR_NUMBER" --merge --subject "Merge PR #$PR_NUMBER: Stats update [skip ci]"
           echo "✅ First PR #$PR_NUMBER merged successfully"
 
-  auto-approve-second-pr:
-    needs: [generate, review-and-merge-first-pr]
-    if: needs.generate.outputs.pr_number_main != ''
-    runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
-
-    steps:
-      - name: Auto-approve second PR
-        uses: hmarr/auto-approve-action@v4
-        with:
-          github-token: ${{ secrets.WORKFLOW_TOKEN }}
-          review-message: "✅ Auto-approved: All GitHub stats updated successfully"
-          pull-request-number: ${{ needs.generate.outputs.pr_number_main }}
-
   auto-merge-second-pr:
-    needs: [generate, auto-approve-second-pr]
+    needs: [generate, review-and-merge-first-pr]
     if: needs.generate.outputs.pr_number_main != ''
     runs-on: ubuntu-latest
     permissions:
