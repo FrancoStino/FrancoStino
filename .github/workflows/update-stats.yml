@@ -146,13 +146,13 @@ jobs:
             local exitCode=0
             
             while (( attempt <= max_attempts )); do
-              echo "Attempt $attempt of $max_attempts..."
+              echo "Attempt $attempt of $max_attempts..." >&2
               if timeout $timeout "$@"; then
                 return 0
               else
                 exitCode=$?
                 if (( attempt < max_attempts )); then
-                  echo "Command failed, waiting 10 seconds before retry..."
+                  echo "Command failed, waiting 10 seconds before retry..." >&2
                   sleep 10
                 fi
               fi
@@ -222,13 +222,13 @@ jobs:
             local exitCode=0
             
             while (( attempt <= max_attempts )); do
-              echo "Attempt $attempt of $max_attempts..."
+              echo "Attempt $attempt of $max_attempts..." >&2
               if timeout $timeout "$@"; then
                 return 0
               else
                 exitCode=$?
                 if (( attempt < max_attempts )); then
-                  echo "Command failed, waiting 10 seconds before retry..."
+                  echo "Command failed, waiting 10 seconds before retry..." >&2
                   sleep 10
                 fi
               fi
@@ -287,13 +287,13 @@ jobs:
             local exitCode=0
             
             while (( attempt <= max_attempts )); do
-              echo "Attempt $attempt of $max_attempts..."
+              echo "Attempt $attempt of $max_attempts..." >&2
               if timeout $timeout "$@"; then
                 return 0
               else
                 exitCode=$?
                 if (( attempt < max_attempts )); then
-                  echo "Command failed, waiting 10 seconds before retry..."
+                  echo "Command failed, waiting 10 seconds before retry..." >&2
                   sleep 10
                 fi
               fi
@@ -354,13 +354,13 @@ jobs:
             local exitCode=0
             
             while (( attempt <= max_attempts )); do
-              echo "Attempt $attempt of $max_attempts..."
+              echo "Attempt $attempt of $max_attempts..." >&2
               if timeout $timeout "$@"; then
                 return 0
               else
                 exitCode=$?
                 if (( attempt < max_attempts )); then
-                  echo "Command failed, waiting 10 seconds before retry..."
+                  echo "Command failed, waiting 10 seconds before retry..." >&2
                   sleep 10
                 fi
               fi
