@@ -419,8 +419,35 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         run: |
+          # Funzione di retry
+          retry_command() {
+            local max_attempts=5
+            local timeout=30
+            local attempt=1
+            local exitCode=0
+            
+            while (( attempt <= max_attempts )); do
+              echo "Attempt $attempt of $max_attempts..." >&2
+              if timeout $timeout "$@"; then
+                return 0
+              else
+                exitCode=$?
+                if (( attempt < max_attempts )); then
+                  echo "Command failed, waiting 10 seconds before retry..." >&2
+                  sleep 10
+                fi
+              fi
+              ((attempt++))
+            done
+            
+            return $exitCode
+          }
+          
           ISSUE_NUMBER="${{ needs.generate.outputs.issue_number }}"
           if [ -n "$ISSUE_NUMBER" ]; then
             echo "Closing issue #$ISSUE_NUMBER..."
-            gh issue close "$ISSUE_NUMBER" --comment "✅ Aggiornamento completato con successo! Tutte le statistiche sono state aggiornate e le PR sono state mergiate."
+            retry_command gh issue close "$ISSUE_NUMBER" --comment "✅ Aggiornamento completato con successo! Tutte le statistiche sono state aggiornate e le PR sono state mergiate."
+            echo "✅ Issue #$ISSUE_NUMBER closed successfully"
+          else
+            echo "⚠️ No issue number found to close"
           fi
