@@ -30,7 +30,13 @@ jobs:
       GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
 
     steps:
-      - name: 0. Create Issue
+      - name: 0. Checkout Main Branch
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.WORKFLOW_TOKEN }}
+          fetch-depth: 0
+
+      - name: 1. Create Issue
         id: create-issue
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -90,12 +96,6 @@ jobs:
           fi
           
           echo "issue_number=$ISSUE_NUMBER" >> "$GITHUB_OUTPUT"
-
-      - name: 1. Checkout Main Branch
-        uses: actions/checkout@v6
-        with:
-          token: ${{ secrets.WORKFLOW_TOKEN }}
-          fetch-depth: 0
 
       - name: 2. Create develop branch if not exists
         run: |
