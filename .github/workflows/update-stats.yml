@@ -24,20 +24,72 @@ jobs:
     outputs:
       pr_number_before: ${{ steps.create-pr-before.outputs.pr_number }}
       pr_number_main: ${{ steps.create-pr-main.outputs.pr_number }}
-      issue_number: ${{ steps.get-issue.outputs.issue_number }}
+      issue_number: ${{ steps.create-issue.outputs.issue_number }}
 
     env:
       GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
 
     steps:
-      - name: 0. Get Issue Number
-        id: get-issue
+      - name: 0. Create Issue
+        id: create-issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # Funzione di retry
+          retry_command() {
+            local max_attempts=5
+            local timeout=30
+            local attempt=1
+            local exitCode=0
+            
+            while (( attempt <= max_attempts )); do
+              echo "Attempt $attempt of $max_attempts..." >&2
+              if timeout $timeout "$@"; then
+                return 0
+              else
+                exitCode=$?
+                if (( attempt < max_attempts )); then
+                  echo "Command failed, waiting 10 seconds before retry..." >&2
+                  sleep 10
+                fi
+              fi
+              ((attempt++))
+            done
+            
+            return $exitCode
+          }
+          
+          # Se l'evento è già un'issue, usa quella esistente
           if [ "${{ github.event_name }}" == "issues" ]; then
-            echo "issue_number=${{ github.event.issue.number }}" >> "$GITHUB_OUTPUT"
+            ISSUE_NUMBER="${{ github.event.issue.number }}"
+            echo "Using existing issue #$ISSUE_NUMBER"
           else
-            echo "issue_number=" >> "$GITHUB_OUTPUT"
+            # Crea una nuova issue
+            ISSUE_BODY="🤖 Aggiornamento automatico delle statistiche GitHub
+          
+          Questo aggiornamento include:
+          - 🐍 Snake animations
+          - 🏆 GitHub trophies
+          - 📊 GitHub stats
+          - ⌨️ Top languages
+          - 🔥 GitHub streak
+          - ⚡ Activity graph
+          
+          ---
+          *Issue creata automaticamente dal workflow*"
+            
+            echo "Creating new issue..."
+            ISSUE_URL=$(retry_command gh issue create \
+              --title "🔄 Update GitHub Stats & Visualizations" \
+              --body "$ISSUE_BODY" \
+              --assignee "FrancoStino")
+            
+            # Estrai il numero dell'issue dall'URL
+            ISSUE_NUMBER=$(echo "$ISSUE_URL" | grep -oP '\d+$')
+            echo "Issue created: #$ISSUE_NUMBER"
           fi
+          
+          echo "issue_number=$ISSUE_NUMBER" >> "$GITHUB_OUTPUT"
 
       - name: 1. Checkout Main Branch
         uses: actions/checkout@v6
@@ -167,14 +219,11 @@ jobs:
           EXISTING_PR=$(retry_command gh pr list --base develop --head before-pull --json number --jq '.[0].number // empty')
           
           if [ -z "$EXISTING_PR" ]; then
-            ISSUE_REF=""
-            if [ -n "${{ steps.get-issue.outputs.issue_number }}" ]; then
-              ISSUE_REF="Closes #${{ steps.get-issue.outputs.issue_number }}"
-            fi
+            ISSUE_NUMBER="${{ steps.create-issue.outputs.issue_number }}"
             
             PR_BODY="Aggiornamento automatico delle statistiche GitHub.
           
-          $ISSUE_REF
+          Closes #${ISSUE_NUMBER}
           
           Questa PR contiene:
           - 🐍 Snake animations
@@ -364,3 +413,14 @@ jobs:
           echo "Merging PR #$PR_NUMBER..."
           retry_command gh pr merge "$PR_NUMBER" --merge --subject "Merge pull request #$PR_NUMBER [skip ci]"
           echo "✅ Second PR #$PR_NUMBER merged successfully"
+          
+      - name: Close issue after successful merge
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ISSUE_NUMBER="${{ needs.generate.outputs.issue_number }}"
+          if [ -n "$ISSUE_NUMBER" ]; then
+            echo "Closing issue #$ISSUE_NUMBER..."
+            gh issue close "$ISSUE_NUMBER" --comment "✅ Aggiornamento completato con successo! Tutte le statistiche sono state aggiornate e le PR sono state mergiate."
+          fi
