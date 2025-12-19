@@ -417,7 +417,7 @@ jobs:
       - name: Close issue after successful merge
         if: success()
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         run: |
           ISSUE_NUMBER="${{ needs.generate.outputs.issue_number }}"
           if [ -n "$ISSUE_NUMBER" ]; then
