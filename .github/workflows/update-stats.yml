@@ -2,6 +2,9 @@ name: GitHub Readme CI
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
   issues:
     types: [opened, edited]
 
@@ -14,15 +17,14 @@ jobs:
   generate:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    # Il workflow si attiva SOLO quando un'issue viene aperta/modificata con "Update" nel titolo
     if: |
-      github.event_name == 'issues' && 
-      contains(github.event.issue.title, 'Update') &&
-      github.actor != 'github-actions[bot]'
+      (github.event_name == 'issues' && contains(github.event.issue.title, 'Update')) ||
+      (github.event_name != 'issues' && github.actor != 'github-actions[bot]' && 
+      !contains(github.event.head_commit.message, 'Auto-update: GitHub Stats'))
     outputs:
       pr_number_before: ${{ steps.create-pr-before.outputs.pr_number }}
       pr_number_main: ${{ steps.create-pr-main.outputs.pr_number }}
-      issue_number: ${{ github.event.issue.number }}
+      issue_number: ${{ steps.create-issue.outputs.issue_number }}
 
     env:
       GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
@@ -34,11 +36,65 @@ jobs:
           token: ${{ secrets.WORKFLOW_TOKEN }}
           fetch-depth: 0
 
-      - name: 1. Use existing issue
-        id: use-issue
+      - name: 1. Create Issue
+        id: create-issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ISSUE_NUMBER="${{ github.event.issue.number }}"
-          echo "Using issue #$ISSUE_NUMBER created by ${{ github.actor }}"
+          # Funzione di retry
+          retry_command() {
+            local max_attempts=5
+            local timeout=30
+            local attempt=1
+            local exitCode=0
+            
+            while (( attempt <= max_attempts )); do
+              echo "Attempt $attempt of $max_attempts..." >&2
+              if timeout $timeout "$@"; then
+                return 0
+              else
+                exitCode=$?
+                if (( attempt < max_attempts )); then
+                  echo "Command failed, waiting 10 seconds before retry..." >&2
+                  sleep 10
+                fi
+              fi
+              ((attempt++))
+            done
+            
+            return $exitCode
+          }
+          
+          # Se l'evento è già un'issue, usa quella esistente
+          if [ "${{ github.event_name }}" == "issues" ]; then
+            ISSUE_NUMBER="${{ github.event.issue.number }}"
+            echo "Using existing issue #$ISSUE_NUMBER"
+          else
+            # Crea una nuova issue
+            ISSUE_BODY="🤖 Aggiornamento automatico delle statistiche GitHub
+          
+          Questo aggiornamento include:
+          - 🐍 Snake animations
+          - 🏆 GitHub trophies
+          - 📊 GitHub stats
+          - ⌨️ Top languages
+          - 🔥 GitHub streak
+          - ⚡ Activity graph
+          
+          ---
+          *Issue creata automaticamente dal workflow*"
+            
+            echo "Creating new issue..."
+            ISSUE_URL=$(retry_command gh issue create \
+              --title "🔄 Update GitHub Stats & Visualizations" \
+              --body "$ISSUE_BODY" \
+              --assignee "FrancoStino")
+            
+            # Estrai il numero dell'issue dall'URL
+            ISSUE_NUMBER=$(echo "$ISSUE_URL" | grep -oP '\d+$')
+            echo "Issue created: #$ISSUE_NUMBER"
+          fi
+          
           echo "issue_number=$ISSUE_NUMBER" >> "$GITHUB_OUTPUT"
 
       - name: 2. Create develop branch if not exists
@@ -117,7 +173,7 @@ jobs:
       - name: 11. Configure Git
         run: |
           git config --local user.email "info@davideladisa.it"
-          git config --local user.name "Davide Ladisa"
+          git config --local user.name "FrancoStino"
 
       - name: 12. Commit all assets to before-pull
         run: |
@@ -135,6 +191,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          # Funzione di retry
           retry_command() {
             local max_attempts=5
             local timeout=30
@@ -162,7 +219,7 @@ jobs:
           EXISTING_PR=$(retry_command gh pr list --base develop --head before-pull --json number --jq '.[0].number // empty')
           
           if [ -z "$EXISTING_PR" ]; then
-            ISSUE_NUMBER="${{ github.event.issue.number }}"
+            ISSUE_NUMBER="${{ steps.create-issue.outputs.issue_number }}"
             
             PR_BODY="Aggiornamento automatico delle statistiche GitHub.
           
@@ -207,6 +264,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         run: |
+          # Funzione di retry
           retry_command() {
             local max_attempts=5
             local timeout=30
@@ -271,6 +329,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         run: |
+          # Funzione di retry
           retry_command() {
             local max_attempts=5
             local timeout=30
@@ -322,6 +381,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         run: |
+          # Funzione di retry
           retry_command() {
             local max_attempts=5
             local timeout=30
