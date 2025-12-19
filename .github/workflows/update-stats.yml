@@ -173,7 +173,7 @@ jobs:
       - name: 11. Configure Git
         run: |
           git config --local user.email "info@davideladisa.it"
-          git config --local user.name "Davide Ladisa"
+          git config --local user.name "FrancoStino"
 
       - name: 12. Commit all assets to before-pull
         run: |
