@@ -180,8 +180,8 @@ jobs:
           git add assets/
           if ! git diff --staged --quiet; then
             git commit -m "🤖 Auto-update: GitHub Stats & Visualizations"
-            git pull --rebase origin before-pull || true
-            git push origin before-pull
+            # Force push per evitare conflitti di merge
+            git push --force origin before-pull
           else
             echo "No changes to commit"
           fi
