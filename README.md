@@ -1,14 +1,12 @@
 <h1 align="center">Hi 👋, I'm Davide Ladisa a.k.a FrancoStino</h1>
 <p align="center">
-    <a href="https://facebook.com/davide.ladisa.7" target="__blank"><img alt="Facebook" title="Follow me on Facebook!"
-            src="https://img.shields.io/badge/Facebook-%231877F2.svg?style=for-the-badge&logo=Facebook&logoColor=white" /></a>
-    <a href="https://github.com/FrancoStino" target="__blank"><img alt="GitHub" title="Follow me on Github!"
-            src="https://img.shields.io/badge/GitHub-333333?style=for-the-badge&logo=github&logoColor=white" /></a>
     <a href="https://linkedin.com/in/davide-ladisa" target="__blank"><img alt="LinkedIn"
             title="Look at my LinkedIn profile"
             src="https://custom-icon-badges.demolab.com/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin-white&logoColor=fff" /></a>
-    <a href="https://instagram.com/davideladisa.it" target="__blank"><img alt="Instagram" title="Follow me on Instagram!"
+     <a href="https://instagram.com/davideladisa.it" target="__blank"><img alt="Instagram" title="Follow me on Instagram!"
             src="https://img.shields.io/badge/Instagram-%23E4405F.svg?style=for-the-badge&logo=Instagram&logoColor=white" /></a>
+    <a href="https://facebook.com/davide.ladisa.7" target="__blank"><img alt="Facebook" title="Follow me on Facebook!"
+            src="https://img.shields.io/badge/Facebook-%231877F2.svg?style=for-the-badge&logo=Facebook&logoColor=white" /></a>
     <a href="https://youtube.com/@rawasir" target="__blank"><img alt="YouTube" title="Follow me on YouTube!"
             src="https://img.shields.io/badge/YouTube-%23FF0000.svg?style=for-the-badge&logo=YouTube&logoColor=white" /></a>
     <a href="https://stackoverflow.com/users/8006279" target="__blank"><img alt="Stack Overflow" title="Check my Stack Overflow!"
