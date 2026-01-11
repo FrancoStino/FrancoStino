@@ -339,8 +339,22 @@ jobs:
         run: |
           PR_NUMBER="${{ needs.generate.outputs.pr_number_before }}"
           
+          # Verifica lo stato della PR
+          PR_STATE=$(gh pr view "$PR_NUMBER" --json state --jq '.state')
+          echo "PR #$PR_NUMBER state: $PR_STATE"
+          
+          if [ "$PR_STATE" = "MERGED" ]; then
+            echo "✅ PR #$PR_NUMBER is already merged, skipping..."
+            exit 0
+          fi
+          
+          if [ "$PR_STATE" = "CLOSED" ]; then
+            echo "⚠️ PR #$PR_NUMBER is already closed, skipping..."
+            exit 0
+          fi
+          
           echo "Approving PR #$PR_NUMBER..."
-          gh pr review "$PR_NUMBER" --approve --body "✅ Reviewed and approved automatically"
+          gh pr review "$PR_NUMBER" --approve --body "✅ Reviewed and approved automatically" || true
           
           # Checkout develop e merge before-pull con strategia theirs per assets
           git fetch origin
@@ -362,10 +376,16 @@ jobs:
           # Push delle modifiche
           git push origin develop
           
-          # Chiudi la PR manualmente
-          gh pr close "$PR_NUMBER" --comment "✅ Merged manually with conflict resolution" --delete-branch=false
+          # Verifica nuovamente lo stato prima di chiudere
+          PR_STATE_AFTER=$(gh pr view "$PR_NUMBER" --json state --jq '.state')
+          if [ "$PR_STATE_AFTER" = "OPEN" ]; then
+            echo "Closing PR #$PR_NUMBER..."
+            gh pr close "$PR_NUMBER" --comment "✅ Merged manually with conflict resolution" --delete-branch=false
+          else
+            echo "✅ PR #$PR_NUMBER already merged/closed"
+          fi
           
-          echo "✅ PR #$PR_NUMBER merged successfully"
+          echo "✅ Merge process completed successfully"
 
   auto-merge-second-pr:
     needs: [generate, review-and-merge-first-pr]
@@ -408,6 +428,20 @@ jobs:
           }
           
           PR_NUMBER="${{ needs.generate.outputs.pr_number_main }}"
+          
+          # Verifica lo stato della PR
+          PR_STATE=$(gh pr view "$PR_NUMBER" --json state --jq '.state' 2>/dev/null || echo "UNKNOWN")
+          echo "PR #$PR_NUMBER state: $PR_STATE"
+          
+          if [ "$PR_STATE" = "MERGED" ]; then
+            echo "✅ PR #$PR_NUMBER is already merged, skipping..."
+            exit 0
+          fi
+          
+          if [ "$PR_STATE" = "CLOSED" ]; then
+            echo "⚠️ PR #$PR_NUMBER is already closed, skipping..."
+            exit 0
+          fi
           
           echo "Waiting for PR #$PR_NUMBER to be mergeable..."
           sleep 10
