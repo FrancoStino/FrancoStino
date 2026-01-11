@@ -324,46 +324,48 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.WORKFLOW_TOKEN }}
+          fetch-depth: 0
 
-      - name: Review and approve first PR
+      - name: Configure Git
+        run: |
+          git config --local user.email "info@davideladisa.it"
+          git config --local user.name "FrancoStino"
+
+      - name: Resolve conflicts and merge PR
         env:
           GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         run: |
-          # Funzione di retry
-          retry_command() {
-            local max_attempts=5
-            local timeout=30
-            local attempt=1
-            local exitCode=0
-            
-            while (( attempt <= max_attempts )); do
-              echo "Attempt $attempt of $max_attempts..." >&2
-              if timeout $timeout "$@"; then
-                return 0
-              else
-                exitCode=$?
-                if (( attempt < max_attempts )); then
-                  echo "Command failed, waiting 10 seconds before retry..." >&2
-                  sleep 10
-                fi
-              fi
-              ((attempt++))
-            done
-            
-            return $exitCode
-          }
-          
           PR_NUMBER="${{ needs.generate.outputs.pr_number_before }}"
           
           echo "Approving PR #$PR_NUMBER..."
-          retry_command gh pr review "$PR_NUMBER" --approve --body "✅ Reviewed and approved automatically"
+          gh pr review "$PR_NUMBER" --approve --body "✅ Reviewed and approved automatically"
           
-          echo "Waiting for PR to be mergeable..."
-          sleep 10
+          # Checkout develop e merge before-pull con strategia theirs per assets
+          git fetch origin
+          git checkout develop
+          git pull origin develop
           
-          echo "Merging PR #$PR_NUMBER..."
-          retry_command gh pr merge "$PR_NUMBER" --merge --subject "Merge PR #$PR_NUMBER: Stats update [skip ci]"
-          echo "✅ First PR #$PR_NUMBER merged successfully"
+          echo "Merging before-pull into develop with conflict resolution..."
+          if ! git merge origin/before-pull --no-edit -m "Merge PR #$PR_NUMBER: Stats update [skip ci]"; then
+            echo "⚠️ Merge conflicts detected, resolving..."
+            
+            # Risolvi conflitti accettando sempre le modifiche da before-pull per i file assets
+            git checkout --theirs assets/
+            git add assets/
+            
+            # Completa il merge
+            git commit --no-edit -m "Merge PR #$PR_NUMBER: Stats update [skip ci]"
+          fi
+          
+          # Push delle modifiche
+          git push origin develop
+          
+          # Chiudi la PR manualmente
+          gh pr close "$PR_NUMBER" --comment "✅ Merged manually with conflict resolution" --delete-branch=false
+          
+          echo "✅ PR #$PR_NUMBER merged successfully"
 
   auto-merge-second-pr:
     needs: [generate, review-and-merge-first-pr]
