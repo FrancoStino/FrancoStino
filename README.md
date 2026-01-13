@@ -68,16 +68,6 @@ Do you like numbers and charts? Let's see some then:
 </details>
 
 <details>
-  <summary>⚡ Activity Graph</summary>
-  <br/>
-  <p align="center">
-    <a href="https://github.com/FrancoStino">
-      <img src="./assets/activity-graph.svg" alt="Activity Graph" />
-    </a>
-  </p>
-</details>
-
-<details>
   <summary>🗄️ Databases</summary>
   <br/>
   <p>
