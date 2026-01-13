@@ -222,7 +222,7 @@ jobs:
           - 🏆 GitHub trophies
           - 📊 GitHub stats
           - ⌨️ Top languages
-          - 🔥 GitHub streak
+          - 🔥 GitHub streak"
             
             echo "Creating new PR..."
             retry_command gh pr create \
