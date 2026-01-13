@@ -79,7 +79,6 @@ jobs:
           - 📊 GitHub stats
           - ⌨️ Top languages
           - 🔥 GitHub streak
-          - ⚡ Activity graph
           
           ---
           *Issue creata automaticamente dal workflow*"
@@ -163,13 +162,6 @@ jobs:
             "https://github-readme-streak-stats.herokuapp.com/?user=${{ github.repository_owner }}&theme=tokyonight&hide_border=false" \
             || echo "Failed to fetch GitHub Streak."
 
-      - name: 10. Fetch Activity Graph
-        run: |
-          curl -f --connect-timeout 30 --retry 3 --retry-delay 5 \
-            -o "./assets/activity-graph.svg" \
-            "https://github-readme-activity-graph.vercel.app/graph?username=${{ github.repository_owner }}&custom_title=⚡%20Activity%20Graph&days=30&area=true&radius=8&hide_border=true&height=350&theme=react-dark&bg_color=050608&color=ffffff&title_color=ffffff&line=3572a5&point=ffffff&area_color=3572a5" \
-            || echo "Failed to fetch Activity Graph."
-
       - name: 11. Configure Git
         run: |
           git config --local user.email "info@davideladisa.it"
@@ -231,7 +223,6 @@ jobs:
           - 📊 GitHub stats
           - ⌨️ Top languages
           - 🔥 GitHub streak
-          - ⚡ Activity graph"
             
             echo "Creating new PR..."
             retry_command gh pr create \
