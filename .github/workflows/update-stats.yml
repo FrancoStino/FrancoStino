@@ -74,7 +74,6 @@ jobs:
             ISSUE_BODY="🤖 Aggiornamento automatico delle statistiche GitHub
           
           Questo aggiornamento include:
-          - 🐍 Snake animations
           - 🏆 GitHub trophies
           - 📊 GitHub stats
           - ⌨️ Top languages
@@ -123,16 +122,6 @@ jobs:
             echo "# Assets Directory" > assets/README.md
             echo "This directory contains auto-generated GitHub stats and visualizations." >> assets/README.md
           fi
-
-      - name: 5. Generate GitHub Contributions Snake Animations
-        uses: Platane/snk/svg-only@v3
-        with:
-          github_user_name: ${{ github.repository_owner }}
-          outputs: |
-            assets/github-snake.svg?color_snake=orange&color_dots=#bfd6f6,#8dbdff,#64a1f4,#4b91f1,#3c7dd9
-            assets/github-snake-dark.svg?palette=github-dark&color_snake=#cca835&color_dots=#161b22,#1e415e,#2b5b84,#3b78a3,#4b91f1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 6. Fetch GitHub Trophies
         run: |
@@ -217,7 +206,6 @@ jobs:
           Closes #${ISSUE_NUMBER}
           
           Questa PR contiene:
-          - 🐍 Snake animations
           - 🏆 GitHub trophies
           - 📊 GitHub stats
           - ⌨️ Top languages
