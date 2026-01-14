@@ -19,16 +19,16 @@ jobs:
     timeout-minutes: 10
     if: |
       (github.event_name == 'issues' && contains(github.event.issue.title, 'Update')) ||
-      (github.event_name != 'issues' && github.actor != 'github-actions[bot]' && 
-      !contains(github.event.head_commit.message, 'Auto-update: GitHub Stats'))
+      (github.event_name != 'issues' && github.actor != 'github-actions[bot]' && !contains(github.event.head_commit.message, 'Auto-update: GitHub Stats'))
+    
     outputs:
       pr_number_before: ${{ steps.create-pr-before.outputs.pr_number }}
       pr_number_main: ${{ steps.create-pr-main.outputs.pr_number }}
       issue_number: ${{ steps.create-issue.outputs.issue_number }}
-
+    
     env:
       GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
-
+    
     steps:
       - name: 0. Checkout Main Branch
         uses: actions/checkout@v6
@@ -82,7 +82,7 @@ jobs:
           
           ---
           *Issue creata automaticamente dal workflow*"
-            
+          
             echo "Creating new issue..."
             ISSUE_URL=$(retry_command gh issue create \
               --title "🔄 Update GitHub Stats & Visualizations" \
@@ -212,7 +212,6 @@ jobs:
           
           if [ -z "$EXISTING_PR" ]; then
             ISSUE_NUMBER="${{ steps.create-issue.outputs.issue_number }}"
-            
             PR_BODY="Aggiornamento automatico delle statistiche GitHub.
           
           Closes #${ISSUE_NUMBER}
@@ -223,21 +222,20 @@ jobs:
           - 📊 GitHub stats
           - ⌨️ Top languages
           - 🔥 GitHub streak"
-            
+          
             echo "Creating new PR..."
             retry_command gh pr create \
               --base develop \
               --head before-pull \
               --title "🔄 First Update: Stats to Develop" \
               --body "$PR_BODY"
-          
+            
             echo "Getting PR number..."
             PR_NUMBER=$(retry_command gh pr list --base develop --head before-pull --json number --jq '.[0].number')
             echo "PR created: #$PR_NUMBER"
             
             echo "Assigning PR to repository owner..."
             retry_command gh pr edit "$PR_NUMBER" --add-assignee "${{ github.repository_owner }}"
-            
           else
             PR_NUMBER=$EXISTING_PR
             echo "Using existing PR #$PR_NUMBER"
@@ -280,29 +278,54 @@ jobs:
           }
           
           echo "Checking for existing PR..."
-          EXISTING_PR=$(retry_command gh pr list --base main --head develop --json number --jq '.[0].number // empty')
+          EXISTING_PR=$(gh pr list --base main --head develop --state open --json number --jq '.[0].number // empty' 2>/dev/null || echo "")
           
-          if [ -z "$EXISTING_PR" ]; then
-            echo "Creating new PR..."
-            retry_command gh pr create \
-              --base main \
-              --head develop \
-              --title "🤖 Auto-update: GitHub Stats & Visualizations" \
-              --body "Aggiornamento automatico da develop a main"
+          if [ -n "$EXISTING_PR" ]; then
+            PR_NUMBER=$EXISTING_PR
+            echo "Using existing PR #$PR_NUMBER"
+            echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           
+          # Verifica se ci sono commit da mergiare
+          git fetch origin main develop
+          COMMITS_AHEAD=$(git rev-list --count origin/main..origin/develop 2>/dev/null || echo "0")
+          
+          if [ "$COMMITS_AHEAD" = "0" ]; then
+            echo "⚠️ No commits between main and develop, skipping PR creation"
+            echo "pr_number=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          
+          echo "Creating new PR ($COMMITS_AHEAD commits ahead)..."
+          
+          # Prova a creare la PR, gestendo l'errore se esiste già
+          if PR_URL=$(gh pr create \
+            --base main \
+            --head develop \
+            --title "🤖 Auto-update: GitHub Stats & Visualizations" \
+            --body "Aggiornamento automatico da develop a main" 2>&1); then
+            
             echo "Getting PR number..."
-            PR_NUMBER=$(retry_command gh pr list --base main --head develop --json number --jq '.[0].number')
+            PR_NUMBER=$(gh pr list --base main --head develop --state open --json number --jq '.[0].number')
             echo "PR created: #$PR_NUMBER"
             
             echo "Assigning PR to FrancoStino..."
             retry_command gh pr edit "$PR_NUMBER" --add-assignee FrancoStino
             
+            echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
           else
-            PR_NUMBER=$EXISTING_PR
-            echo "Using existing PR #$PR_NUMBER"
+            # Se la PR esiste già, estrai il numero dall'errore
+            if echo "$PR_URL" | grep -q "already exists"; then
+              EXISTING_PR_URL=$(echo "$PR_URL" | grep -oP 'https://[^\s]+' | head -1)
+              PR_NUMBER=$(echo "$EXISTING_PR_URL" | grep -oP '\d+$')
+              echo "PR already exists: #$PR_NUMBER"
+              echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+            else
+              echo "⚠️ Failed to create PR: $PR_URL"
+              echo "pr_number=" >> "$GITHUB_OUTPUT"
+            fi
           fi
-          
-          echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
 
   review-and-merge-first-pr:
     needs: generate
@@ -311,7 +334,7 @@ jobs:
     permissions:
       pull-requests: write
       contents: write
-
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -369,6 +392,7 @@ jobs:
           
           # Verifica nuovamente lo stato prima di chiudere
           PR_STATE_AFTER=$(gh pr view "$PR_NUMBER" --json state --jq '.state')
+          
           if [ "$PR_STATE_AFTER" = "OPEN" ]; then
             echo "Closing PR #$PR_NUMBER..."
             gh pr close "$PR_NUMBER" --comment "✅ Merged manually with conflict resolution" --delete-branch=false
@@ -385,7 +409,7 @@ jobs:
     permissions:
       pull-requests: write
       contents: write
-
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
@@ -439,8 +463,9 @@ jobs:
           
           echo "Merging PR #$PR_NUMBER..."
           retry_command gh pr merge "$PR_NUMBER" --merge --subject "Merge pull request #$PR_NUMBER [skip ci]"
-          echo "✅ Second PR #$PR_NUMBER merged successfully"
           
+          echo "✅ Second PR #$PR_NUMBER merged successfully"
+
       - name: Close issue after successful merge
         if: success()
         env:
@@ -471,6 +496,7 @@ jobs:
           }
           
           ISSUE_NUMBER="${{ needs.generate.outputs.issue_number }}"
+          
           if [ -n "$ISSUE_NUMBER" ]; then
             echo "Closing issue #$ISSUE_NUMBER..."
             retry_command gh issue close "$ISSUE_NUMBER" --comment "✅ Aggiornamento completato con successo! Tutte le statistiche sono state aggiornate e le PR sono state mergiate."
