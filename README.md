@@ -11,10 +11,10 @@
             src="https://img.shields.io/badge/YouTube-%23FF0000.svg?style=for-the-badge&logo=YouTube&logoColor=white" /></a>
     <a href="https://stackoverflow.com/users/8006279" target="__blank"><img alt="Stack Overflow" title="Check my Stack Overflow!"
             src="https://img.shields.io/badge/-Stackoverflow-FE7A16?logo=stack-overflow&style=for-the-badge&logoColor=white" /></a>
-    <a href="https://codepen.io/rawsar" target="__blank"><img alt="Codepen" title="Check my Codepen!"
-            src="https://img.shields.io/badge/Codepen-000000?style=for-the-badge&logo=codepen&logoColor=white" /></a>
     <a href="https://reddit.com/user/Pecoro" target="__blank"><img alt="Reddit" title="Follow me on Reddit!"
             src="https://img.shields.io/badge/Reddit-%23FF4500.svg?style=for-the-badge&logo=Reddit&logoColor=white" /></a>
+    <a href="https://codepen.io/rawsar" target="__blank"><img alt="Codepen" title="Check my Codepen!"
+            src="https://img.shields.io/badge/Codepen-000000?style=for-the-badge&logo=codepen&logoColor=white" /></a>
 </p>
 
 
