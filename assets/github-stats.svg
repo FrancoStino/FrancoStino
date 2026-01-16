@@ -9,7 +9,7 @@
         aria-labelledby="descId"
       >
         <title id="titleId">Davide Ladisa's GitHub Stats, Rank: A-</title>
-        <desc id="descId">Total Stars Earned: 15, Total Commits  : 31281, Total PRs: 4318, Total PRs Merged: 4300, Total PRs Reviewed: 6824, Total Issues: 4142, Contributed to (last year): 14</desc>
+        <desc id="descId">Total Stars Earned: 15, Total Commits  : 31287, Total PRs: 4319, Total PRs Merged: 4301, Total PRs Reviewed: 6826, Total Issues: 4143, Contributed to (last year): 14</desc>
         <style>
           .header {
             font: 600 18px 'Segoe UI', Ubuntu, Sans-Serif;
@@ -73,7 +73,7 @@
         stroke-dashoffset: 251.32741228718345;
       }
       to {
-        stroke-dashoffset: 75.46605836139535;
+        stroke-dashoffset: 75.46605836132876;
       }
     }
   
