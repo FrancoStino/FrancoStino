@@ -21,39 +21,28 @@ jobs:
         run: |
           echo "🔍 Cercando issue aperte..."
           
-          # Ottieni tutte le issue aperte
-          ISSUES=$(gh issue list \
-            --repo ${{ github.repository }} \
-            --state open \
-            --json number,title \
-            --jq '.[] | .number')
+          ISSUES=$(gh issue list --repo ${{ github.repository }} --state open --json number --jq '.[] | .number')
           
           if [ -z "$ISSUES" ]; then
             echo "✅ Nessuna issue aperta trovata"
             exit 0
           fi
           
-          # Conta le issue
           ISSUE_COUNT=$(echo "$ISSUES" | wc -l)
           echo "📊 Trovate $ISSUE_COUNT issue aperte"
           
-          # Data corrente
           CURRENT_DATE=$(date '+%Y-%m-%d')
           
-          # Chiudi ogni issue
           for ISSUE_NUMBER in $ISSUES; do
             echo "🔒 Chiudendo issue #$ISSUE_NUMBER..."
             
-            gh issue close "$ISSUE_NUMBER" \
-              --repo ${{ github.repository }} \
-              --comment "🤖 **Chiusura automatica mensile**
-
-Questa issue è stata chiusa automaticamente il $CURRENT_DATE come parte della pulizia mensile del repository.
-
-Se questa issue richiede ancora attenzione, sentiti libero di riaprirla.
-
----
-*Chiusa automaticamente dal workflow Monthly Issue Closer*"
+            COMMENT="🤖 Chiusura automatica mensile
+          
+          Questa issue è stata chiusa automaticamente il $CURRENT_DATE come parte della pulizia mensile del repository.
+          
+          Se questa issue richiede ancora attenzione, sentiti libero di riaprirla."
+            
+            gh issue close "$ISSUE_NUMBER" --repo ${{ github.repository }} --comment "$COMMENT"
             
             if [ $? -eq 0 ]; then
               echo "✅ Issue #$ISSUE_NUMBER chiusa con successo"
@@ -61,7 +50,6 @@ Se questa issue richiede ancora attenzione, sentiti libero di riaprirla.
               echo "❌ Errore nella chiusura dell'issue #$ISSUE_NUMBER"
             fi
             
-            # Pausa di 2 secondi tra ogni chiusura per evitare rate limiting
             sleep 2
           done
           
@@ -73,33 +61,19 @@ Se questa issue richiede ancora attenzione, sentiti libero di riaprirla.
         run: |
           echo "📋 Creando issue di riepilogo..."
           
-          CLOSED_COUNT=$(gh issue list \
-            --repo ${{ github.repository }} \
-            --state closed \
-            --search "closed:>=$(date -d '1 day ago' '+%Y-%m-%d')" \
-            --json number \
-            --jq '. | length')
+          CLOSED_COUNT=$(gh issue list --repo ${{ github.repository }} --state closed --search "closed:>=$(date -d '1 day ago' '+%Y-%m-%d')" --json number --jq '. | length')
           
-          SUMMARY_BODY="## 📊 Riepilogo Chiusura Mensile Issue
-
-**Data:** $(date '+%d/%m/%Y %H:%M:%S')
-
-### Statistiche
-- 🔒 Issue chiuse: **$CLOSED_COUNT**
-- 📅 Prossima esecuzione: **$(date -d '+1 month' '+%d/%m/%Y')**
-
-### Dettagli
-Tutte le issue aperte sono state chiuse automaticamente come parte della manutenzione mensile del repository.
-
-Le issue chiuse possono essere riaperte in qualsiasi momento se necessario.
-
----
-*Generato automaticamente dal workflow Monthly Issue Closer*"
+          MONTH_NAME=$(date '+%B %Y')
+          CURRENT_DATE=$(date '+%d/%m/%Y %H:%M:%S')
+          NEXT_DATE=$(date -d '+1 month' '+%d/%m/%Y')
           
-          gh issue create \
-            --repo ${{ github.repository }} \
-            --title "📊 Riepilogo Chiusura Mensile - $(date '+%B %Y')" \
-            --body "$SUMMARY_BODY" \
-            --label "automation,monthly-summary"
+          SUMMARY="Riepilogo Chiusura Mensile Issue - $CURRENT_DATE
+          
+          Issue chiuse: $CLOSED_COUNT
+          Prossima esecuzione: $NEXT_DATE
+          
+          Tutte le issue aperte sono state chiuse automaticamente."
+          
+          gh issue create --repo ${{ github.repository }} --title "📊 Riepilogo Mensile - $MONTH_NAME" --body "$SUMMARY" --label "automation"
           
           echo "✅ Issue di riepilogo creata"
