@@ -74,6 +74,6 @@ jobs:
           
           Tutte le issue aperte sono state chiuse automaticamente."
           
-          gh issue create --repo ${{ github.repository }} --title "📊 Riepilogo Mensile - $MONTH_NAME" --body "$SUMMARY" --label "automation"
+          gh issue create --repo ${{ github.repository }} --title "📊 Riepilogo Mensile - $MONTH_NAME" --body "$SUMMARY"
           
           echo "✅ Issue di riepilogo creata"
