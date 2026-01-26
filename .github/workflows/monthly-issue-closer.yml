@@ -54,26 +54,4 @@ jobs:
           done
           
           echo "🎉 Completata la chiusura di tutte le issue!"
-
-      - name: Create summary
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          echo "📋 Creando issue di riepilogo..."
           
-          CLOSED_COUNT=$(gh issue list --repo ${{ github.repository }} --state closed --search "closed:>=$(date -d '1 day ago' '+%Y-%m-%d')" --json number --jq '. | length')
-          
-          MONTH_NAME=$(date '+%B %Y')
-          CURRENT_DATE=$(date '+%d/%m/%Y %H:%M:%S')
-          NEXT_DATE=$(date -d '+1 month' '+%d/%m/%Y')
-          
-          SUMMARY="Riepilogo Chiusura Mensile Issue - $CURRENT_DATE
-          
-          Issue chiuse: $CLOSED_COUNT
-          Prossima esecuzione: $NEXT_DATE
-          
-          Tutte le issue aperte sono state chiuse automaticamente."
-          
-          gh issue create --repo ${{ github.repository }} --title "📊 Riepilogo Mensile - $MONTH_NAME" --body "$SUMMARY" --label "automation"
-          
-          echo "✅ Issue di riepilogo creata"
