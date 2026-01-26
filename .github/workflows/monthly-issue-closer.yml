@@ -1,0 +1,105 @@
+name: Monthly Issue Closer
+
+on:
+  schedule:
+    # Esegui il primo giorno di ogni mese alle 00:00 UTC
+    - cron: '0 0 1 * *'
+  workflow_dispatch: # Permetti esecuzione manuale
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  close-monthly-issues:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Close all open issues
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "🔍 Cercando issue aperte..."
+          
+          # Ottieni tutte le issue aperte
+          ISSUES=$(gh issue list \
+            --repo ${{ github.repository }} \
+            --state open \
+            --json number,title \
+            --jq '.[] | .number')
+          
+          if [ -z "$ISSUES" ]; then
+            echo "✅ Nessuna issue aperta trovata"
+            exit 0
+          fi
+          
+          # Conta le issue
+          ISSUE_COUNT=$(echo "$ISSUES" | wc -l)
+          echo "📊 Trovate $ISSUE_COUNT issue aperte"
+          
+          # Data corrente
+          CURRENT_DATE=$(date '+%Y-%m-%d')
+          
+          # Chiudi ogni issue
+          for ISSUE_NUMBER in $ISSUES; do
+            echo "🔒 Chiudendo issue #$ISSUE_NUMBER..."
+            
+            gh issue close "$ISSUE_NUMBER" \
+              --repo ${{ github.repository }} \
+              --comment "🤖 **Chiusura automatica mensile**
+
+Questa issue è stata chiusa automaticamente il $CURRENT_DATE come parte della pulizia mensile del repository.
+
+Se questa issue richiede ancora attenzione, sentiti libero di riaprirla.
+
+---
+*Chiusa automaticamente dal workflow Monthly Issue Closer*"
+            
+            if [ $? -eq 0 ]; then
+              echo "✅ Issue #$ISSUE_NUMBER chiusa con successo"
+            else
+              echo "❌ Errore nella chiusura dell'issue #$ISSUE_NUMBER"
+            fi
+            
+            # Pausa di 2 secondi tra ogni chiusura per evitare rate limiting
+            sleep 2
+          done
+          
+          echo "🎉 Completata la chiusura di tutte le issue!"
+
+      - name: Create summary
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "📋 Creando issue di riepilogo..."
+          
+          CLOSED_COUNT=$(gh issue list \
+            --repo ${{ github.repository }} \
+            --state closed \
+            --search "closed:>=$(date -d '1 day ago' '+%Y-%m-%d')" \
+            --json number \
+            --jq '. | length')
+          
+          SUMMARY_BODY="## 📊 Riepilogo Chiusura Mensile Issue
+
+**Data:** $(date '+%d/%m/%Y %H:%M:%S')
+
+### Statistiche
+- 🔒 Issue chiuse: **$CLOSED_COUNT**
+- 📅 Prossima esecuzione: **$(date -d '+1 month' '+%d/%m/%Y')**
+
+### Dettagli
+Tutte le issue aperte sono state chiuse automaticamente come parte della manutenzione mensile del repository.
+
+Le issue chiuse possono essere riaperte in qualsiasi momento se necessario.
+
+---
+*Generato automaticamente dal workflow Monthly Issue Closer*"
+          
+          gh issue create \
+            --repo ${{ github.repository }} \
+            --title "📊 Riepilogo Chiusura Mensile - $(date '+%B %Y')" \
+            --body "$SUMMARY_BODY" \
+            --label "automation,monthly-summary"
+          
+          echo "✅ Issue di riepilogo creata"
