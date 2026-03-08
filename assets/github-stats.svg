@@ -9,7 +9,7 @@
         aria-labelledby="descId"
       >
         <title id="titleId">Davide Ladisa's GitHub Stats, Rank: A-</title>
-        <desc id="descId">Total Stars Earned: 14, Total Commits  : 48700, Total PRs: 8424, Total PRs Merged: 8403, Total PRs Reviewed: 8734, Total Issues: 8135, Contributed to (last year): 17</desc>
+        <desc id="descId">Total Stars Earned: 14, Total Commits  : 48704, Total PRs: 8425, Total PRs Merged: 8404, Total PRs Reviewed: 8734, Total Issues: 8136, Contributed to (last year): 17</desc>
         <style>
           .header {
             font: 600 18px 'Segoe UI', Ubuntu, Sans-Serif;
