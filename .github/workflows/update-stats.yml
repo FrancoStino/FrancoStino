@@ -31,7 +31,7 @@ jobs:
     
     steps:
       - name: 0. Checkout Main Branch
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.WORKFLOW_TOKEN }}
           fetch-depth: 0
@@ -41,13 +41,11 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         run: |
-          # Funzione di retry
           retry_command() {
             local max_attempts=5
             local timeout=30
             local attempt=1
             local exitCode=0
-            
             while (( attempt <= max_attempts )); do
               echo "Attempt $attempt of $max_attempts..." >&2
               if timeout $timeout "$@"; then
@@ -61,16 +59,13 @@ jobs:
               fi
               ((attempt++))
             done
-            
             return $exitCode
           }
           
-          # Se l'evento è già un'issue, usa quella esistente
           if [ "${{ github.event_name }}" == "issues" ]; then
             ISSUE_NUMBER="${{ github.event.issue.number }}"
             echo "Using existing issue #$ISSUE_NUMBER"
           else
-            # Crea una nuova issue
             ISSUE_BODY="🤖 Aggiornamento automatico delle statistiche GitHub
           
           Questo aggiornamento include:
@@ -87,8 +82,6 @@ jobs:
               --title "🔄 Update GitHub Stats & Visualizations" \
               --body "$ISSUE_BODY" \
               --assignee "FrancoStino")
-            
-            # Estrai il numero dell'issue dall'URL
             ISSUE_NUMBER=$(echo "$ISSUE_URL" | grep -oP '\d+$')
             echo "Issue created: #$ISSUE_NUMBER"
           fi
@@ -161,7 +154,6 @@ jobs:
           git add assets/
           if ! git diff --staged --quiet; then
             git commit -m "🤖 Auto-update: GitHub Stats & Visualizations"
-            # Force push per evitare conflitti di merge
             git push --force origin before-pull
           else
             echo "No changes to commit"
@@ -172,13 +164,11 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Funzione di retry
           retry_command() {
             local max_attempts=5
             local timeout=30
             local attempt=1
             local exitCode=0
-            
             while (( attempt <= max_attempts )); do
               echo "Attempt $attempt of $max_attempts..." >&2
               if timeout $timeout "$@"; then
@@ -192,7 +182,6 @@ jobs:
               fi
               ((attempt++))
             done
-            
             return $exitCode
           }
           
@@ -241,13 +230,11 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         run: |
-          # Funzione di retry
           retry_command() {
             local max_attempts=5
             local timeout=30
             local attempt=1
             local exitCode=0
-            
             while (( attempt <= max_attempts )); do
               echo "Attempt $attempt of $max_attempts..." >&2
               if timeout $timeout "$@"; then
@@ -261,7 +248,6 @@ jobs:
               fi
               ((attempt++))
             done
-            
             return $exitCode
           }
           
@@ -275,7 +261,6 @@ jobs:
             exit 0
           fi
           
-          # Verifica se ci sono commit da mergiare
           git fetch origin main develop
           COMMITS_AHEAD=$(git rev-list --count origin/main..origin/develop 2>/dev/null || echo "0")
           
@@ -287,23 +272,17 @@ jobs:
           
           echo "Creating new PR ($COMMITS_AHEAD commits ahead)..."
           
-          # Prova a creare la PR, gestendo l'errore se esiste già
           if PR_URL=$(gh pr create \
             --base main \
             --head develop \
             --title "🤖 Auto-update: GitHub Stats & Visualizations" \
             --body "Aggiornamento automatico da develop a main" 2>&1); then
             
-            echo "Getting PR number..."
             PR_NUMBER=$(gh pr list --base main --head develop --state open --json number --jq '.[0].number')
             echo "PR created: #$PR_NUMBER"
-            
-            echo "Assigning PR to FrancoStino..."
             retry_command gh pr edit "$PR_NUMBER" --add-assignee FrancoStino
-            
             echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
           else
-            # Se la PR esiste già, estrai il numero dall'errore
             if echo "$PR_URL" | grep -q "already exists"; then
               EXISTING_PR_URL=$(echo "$PR_URL" | grep -oP 'https://[^\s]+' | head -1)
               PR_NUMBER=$(echo "$EXISTING_PR_URL" | grep -oP '\d+$')
@@ -325,7 +304,7 @@ jobs:
     
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.WORKFLOW_TOKEN }}
           fetch-depth: 0
@@ -341,7 +320,6 @@ jobs:
         run: |
           PR_NUMBER="${{ needs.generate.outputs.pr_number_before }}"
           
-          # Verifica lo stato della PR
           PR_STATE=$(gh pr view "$PR_NUMBER" --json state --jq '.state')
           echo "PR #$PR_NUMBER state: $PR_STATE"
           
@@ -358,7 +336,6 @@ jobs:
           echo "Approving PR #$PR_NUMBER..."
           gh pr review "$PR_NUMBER" --approve --body "✅ Reviewed and approved automatically" || true
           
-          # Checkout develop e merge before-pull con strategia theirs per assets
           git fetch origin
           git checkout develop
           git pull origin develop
@@ -366,19 +343,24 @@ jobs:
           echo "Merging before-pull into develop with conflict resolution..."
           if ! git merge origin/before-pull --no-edit -m "Merge PR #$PR_NUMBER: Stats update [skip ci]"; then
             echo "⚠️ Merge conflicts detected, resolving..."
-            
-            # Risolvi conflitti accettando sempre le modifiche da before-pull per i file assets
             git checkout --theirs assets/
             git add assets/
-            
-            # Completa il merge
             git commit --no-edit -m "Merge PR #$PR_NUMBER: Stats update [skip ci]"
           fi
           
-          # Push delle modifiche
-          git push origin develop
+          # ✅ FIX: Push con retry loop per evitare race condition
+          MAX_RETRIES=5
+          RETRY=0
+          until git push origin develop; do
+            RETRY=$((RETRY + 1))
+            if [ "$RETRY" -ge "$MAX_RETRIES" ]; then
+              echo "❌ Push failed after $MAX_RETRIES attempts"
+              exit 1
+            fi
+            echo "⚠️ Push rejected, pulling and rebasing ($RETRY/$MAX_RETRIES)..."
+            git pull origin develop --rebase
+          done
           
-          # Verifica nuovamente lo stato prima di chiudere
           PR_STATE_AFTER=$(gh pr view "$PR_NUMBER" --json state --jq '.state')
           
           if [ "$PR_STATE_AFTER" = "OPEN" ]; then
@@ -400,19 +382,17 @@ jobs:
     
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
       - name: Auto-merge second PR
         env:
           GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         run: |
-          # Funzione di retry
           retry_command() {
             local max_attempts=5
             local timeout=30
             local attempt=1
             local exitCode=0
-            
             while (( attempt <= max_attempts )); do
               echo "Attempt $attempt of $max_attempts..." >&2
               if timeout $timeout "$@"; then
@@ -426,13 +406,11 @@ jobs:
               fi
               ((attempt++))
             done
-            
             return $exitCode
           }
           
           PR_NUMBER="${{ needs.generate.outputs.pr_number_main }}"
           
-          # Verifica lo stato della PR
           PR_STATE=$(gh pr view "$PR_NUMBER" --json state --jq '.state' 2>/dev/null || echo "UNKNOWN")
           echo "PR #$PR_NUMBER state: $PR_STATE"
           
@@ -459,13 +437,11 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         run: |
-          # Funzione di retry
           retry_command() {
             local max_attempts=5
             local timeout=30
             local attempt=1
             local exitCode=0
-            
             while (( attempt <= max_attempts )); do
               echo "Attempt $attempt of $max_attempts..." >&2
               if timeout $timeout "$@"; then
@@ -479,7 +455,6 @@ jobs:
               fi
               ((attempt++))
             done
-            
             return $exitCode
           }
           
