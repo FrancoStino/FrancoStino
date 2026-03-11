@@ -11,9 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Full history for merge
+          fetch-depth: 0
       - name: Fetch all remote branches
         run: |
           git fetch origin main develop --force
@@ -24,11 +24,22 @@ jobs:
       - name: Merge main to develop safely
         run: |
           git checkout develop
-          git pull origin develop --rebase  # Sync with latest remote develop
+          git pull origin develop --rebase
           if ! git merge origin/main --no-ff -m "Sync main to develop"; then
             echo "Merge conflict detected - aborting"
             git merge --abort
             exit 1
           fi
-      - name: Push changes
-        run: git push origin develop
+      - name: Push changes with retry
+        run: |
+          MAX_RETRIES=5
+          RETRY=0
+          until git push origin develop; do
+            RETRY=$((RETRY + 1))
+            if [ "$RETRY" -ge "$MAX_RETRIES" ]; then
+              echo "❌ Push failed after $MAX_RETRIES attempts"
+              exit 1
+            fi
+            echo "⚠️ Push rejected, pulling and rebasing ($RETRY/$MAX_RETRIES)..."
+            git pull origin develop --rebase
+          done
