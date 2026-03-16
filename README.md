@@ -57,7 +57,7 @@ Do you like numbers and charts? Let's see some then:
   </p>
 </details>
 
-<details>
+<!--<details>
   <summary>✨ Top Contributions</summary>
   <br/>
   <p align="center">
@@ -66,6 +66,7 @@ Do you like numbers and charts? Let's see some then:
     </a>
   </p>
 </details>
+-->
 
 <details>
   <summary>🗄️ Databases</summary>
