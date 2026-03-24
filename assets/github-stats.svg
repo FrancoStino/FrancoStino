@@ -9,7 +9,7 @@
         aria-labelledby="descId"
       >
         <title id="titleId">FrancoStino's GitHub Stats, Rank: A-</title>
-        <desc id="descId">Total Stars Earned: 17, Total Commits  : 49934, Total PRs: 8716, Total PRs Merged: 8693, Total PRs Reviewed: 8735, Total Issues: 8507, Contributed to (last year): 19</desc>
+        <desc id="descId">Total Stars Earned: 18, Total Commits  : 49938, Total PRs: 8717, Total PRs Merged: 8694, Total PRs Reviewed: 8735, Total Issues: 8510, Contributed to (last year): 19</desc>
         <style>
           .header {
             font: 600 18px 'Segoe UI', Ubuntu, Sans-Serif;
@@ -73,7 +73,7 @@
         stroke-dashoffset: 251.32741228718345;
       }
       to {
-        stroke-dashoffset: 71.62532245043572;
+        stroke-dashoffset: 70.70592161532018;
       }
     }
   
@@ -162,7 +162,7 @@
         x="219.01"
         y="12.5"
         data-testid="stars"
-      >17</text>
+      >18</text>
     </g>
   </g><g transform="translate(0, 25)">
     <g class="stagger" style="animation-delay: 600ms" transform="translate(25, 0)">
