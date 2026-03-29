@@ -9,7 +9,7 @@
         aria-labelledby="descId"
       >
         <title id="titleId">FrancoStino's GitHub Stats, Rank: A-</title>
-        <desc id="descId">Total Stars Earned: 18, Total Commits  : 50359, Total PRs: 8810, Total PRs Merged: 8787, Total PRs Reviewed: 8735, Total Issues: 8639, Contributed to (last year): 19</desc>
+        <desc id="descId">Total Stars Earned: 18, Total Commits  : 50382, Total PRs: 8812, Total PRs Merged: 8789, Total PRs Reviewed: 8735, Total Issues: 8641, Contributed to (last year): 20</desc>
         <style>
           .header {
             font: 600 18px 'Segoe UI', Ubuntu, Sans-Serif;
@@ -252,7 +252,7 @@
         x="219.01"
         y="12.5"
         data-testid="contribs"
-      >19</text>
+      >20</text>
     </g>
   </g>
     </svg>
