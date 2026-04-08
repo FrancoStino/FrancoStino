@@ -7,8 +7,6 @@
             src="https://img.shields.io/badge/Instagram-%23E4405F.svg?style=for-the-badge&logo=Instagram&logoColor=white" /></a>
     <a href="https://facebook.com/davide.ladisa.7" target="__blank"><img alt="Facebook" title="Follow me on Facebook!"
             src="https://img.shields.io/badge/Facebook-%231877F2.svg?style=for-the-badge&logo=Facebook&logoColor=white" /></a>
-    <a href="https://youtube.com/@rawasir" target="__blank"><img alt="YouTube" title="Follow me on YouTube!"
-            src="https://img.shields.io/badge/YouTube-%23FF0000.svg?style=for-the-badge&logo=YouTube&logoColor=white" /></a>
     <a href="https://stackoverflow.com/users/8006279" target="__blank"><img alt="Stack Overflow" title="Check my Stack Overflow!"
             src="https://img.shields.io/badge/-Stackoverflow-FE7A16?logo=stack-overflow&style=for-the-badge&logoColor=white" /></a>
     <a href="https://reddit.com/user/Pecoro" target="__blank"><img alt="Reddit" title="Follow me on Reddit!"
