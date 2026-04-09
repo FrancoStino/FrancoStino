@@ -21,7 +21,7 @@ jobs:
         run: |
           echo "🔍 Cercando issue aperte..."
           
-          ISSUES=$(gh issue list --repo ${{ github.repository }} --state open --json number --jq '.[] | .number')
+          ISSUES=$(gh issue list --repo ${{ github.repository }} --state open --json number --limit 1000 --jq '.[] | .number')
           
           if [ -z "$ISSUES" ]; then
             echo "✅ Nessuna issue aperta trovata"
