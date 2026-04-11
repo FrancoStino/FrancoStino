@@ -184,40 +184,59 @@ jobs:
             done
             return $exitCode
           }
-          
+
           echo "Checking for existing PR..."
           EXISTING_PR=$(retry_command gh pr list --base develop --head before-pull --json number --jq '.[0].number // empty')
-          
+
           if [ -z "$EXISTING_PR" ]; then
+
+            # ✅ FIX: verifica se ci sono commit tra before-pull e develop prima di creare la PR
+            git fetch origin before-pull develop
+            COMMITS_AHEAD=$(git rev-list --count origin/develop..origin/before-pull 2>/dev/null || echo "0")
+
+            if [ "$COMMITS_AHEAD" = "0" ]; then
+              echo "⚠️ No commits between before-pull and develop, skipping PR creation"
+              # ✅ FIX: chiudi la issue anche se non ci sono aggiornamenti
+              ISSUE_NUMBER="${{ steps.create-issue.outputs.issue_number }}"
+              if [ -n "$ISSUE_NUMBER" ]; then
+                echo "Closing issue #$ISSUE_NUMBER (no changes detected)..."
+                gh issue close "$ISSUE_NUMBER" \
+                  --comment "ℹ️ Nessun aggiornamento necessario: le statistiche non sono cambiate rispetto all'ultima esecuzione." \
+                  || echo "⚠️ Could not close issue #$ISSUE_NUMBER"
+              fi
+              echo "pr_number=" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+
             ISSUE_NUMBER="${{ steps.create-issue.outputs.issue_number }}"
             PR_BODY="Aggiornamento automatico delle statistiche GitHub.
-          
+
           Closes #${ISSUE_NUMBER}
-          
+
           Questa PR contiene:
           - 🏆 GitHub trophies
           - 📊 GitHub stats
           - ⌨️ Top languages
           - 🔥 GitHub streak"
-          
-            echo "Creating new PR..."
+
+            echo "Creating new PR ($COMMITS_AHEAD commits ahead)..."
             retry_command gh pr create \
               --base develop \
               --head before-pull \
               --title "🔄 First Update: Stats to Develop" \
               --body "$PR_BODY"
-            
+
             echo "Getting PR number..."
             PR_NUMBER=$(retry_command gh pr list --base develop --head before-pull --json number --jq '.[0].number')
             echo "PR created: #$PR_NUMBER"
-            
+
             echo "Assigning PR to repository owner..."
             retry_command gh pr edit "$PR_NUMBER" --add-assignee "${{ github.repository_owner }}"
           else
             PR_NUMBER=$EXISTING_PR
             echo "Using existing PR #$PR_NUMBER"
           fi
-          
+
           echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
 
       - name: 14. Checkout develop branch
@@ -348,7 +367,6 @@ jobs:
             git commit --no-edit -m "Merge PR #$PR_NUMBER: Stats update [skip ci]"
           fi
           
-          # ✅ FIX: Push con retry loop per evitare race condition
           MAX_RETRIES=5
           RETRY=0
           until git push origin develop; do
