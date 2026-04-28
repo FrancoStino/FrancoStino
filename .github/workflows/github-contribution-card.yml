@@ -23,7 +23,7 @@ jobs:
           output-file: assets/github-contribution-card.svg
           combine-all-yearly-contributions: 'false'
           hide-contributor-rank: 'false'
-          theme: 'Dracula'
+          theme: 'tokyonight'
 
       - uses: actions4git/add-commit-push@v1
         continue-on-error: false
