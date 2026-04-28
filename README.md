@@ -55,23 +55,13 @@ Do you like numbers and charts? Let's see some then:
   </p>
 </details>
 
-<!--<details>
+<details>
   <summary>✨ Top Contributions</summary>
   <br/>
   <p align="center">
     <a href="https://github.com/FrancoStino">
-      <img src="https://github-contributor-stats.vercel.app/api?username=FrancoStino&limit=5&theme=tokyonight&combine_all_yearly_contributions=true&hide_title=true" alt="Top Contributor Chart" />
+      <img src="assets/github-contribution-card.svg" alt="Top Contributor Chart" />
     </a>
-  </p>
-</details>
--->
-
-<details>
-  <summary>🗄️ Databases</summary>
-  <br/>
-  <p>
-    <a href="https://www.mysql.com/" target="_blank"> <img src="https://img.shields.io/badge/mysql-4479A1.svg?style=for-the-badge&logo=mysql&logoColor=white" alt="mysql"/></a>
-    <a href="https://mariadb.org/" target="_blank"> <img src="https://img.shields.io/badge/MariaDB-003545?style=for-the-badge&logo=mariadb&logoColor=white" alt="mariadb"/></a>
   </p>
 </details>
 
