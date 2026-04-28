@@ -21,7 +21,7 @@ jobs:
         with:
           username: FrancoStino
           output-file: assets/github-contribution-card.svg
-          combine-all-yearly-contributions: 'true'
+          combine-all-yearly-contributions: 'false'
           hide-contributor-rank: 'false'
           theme: 'Dracula'
 
