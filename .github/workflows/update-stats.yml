@@ -156,6 +156,7 @@ jobs:
           combine-all-yearly-contributions: 'false'
           hide-contributor-rank: 'false'
           theme: 'tokyonight'
+          hide: 'B'
           
       - name: 9. Configure Git
         run: |
