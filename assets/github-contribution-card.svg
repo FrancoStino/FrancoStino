@@ -1,8 +1,8 @@
 
       <svg
         width="495"
-        height="306"
-        viewBox="0 0 495 306"
+        height="240"
+        viewBox="0 0 495 240"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -298,62 +298,6 @@
       <g class="rank-text">
         <text x="7.2" y="18.5">
         S
-       </text>
-      </g>
-    </g>
-    
-    </g>
-  </g><g transform="translate(0, 132)">
-    <g class="stagger" style="animation-delay: 1050ms" transform="translate(25, 0)">
-      <defs>
-        <clipPath id="myCircle">
-          <circle cx="12.5" cy="12.5" r="12.5" fill="#FFFFFF" />
-        </clipPath>
-      </defs>
-      <image xlink:href="data:image/image/jpeg;base64,/9j/2wCEAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDIBCQkJDAsMGA0NGDIhHCEyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMv/AABEIADIAMgMBIgACEQEDEQH/xAGiAAABBQEBAQEBAQAAAAAAAAAAAQIDBAUGBwgJCgsQAAIBAwMCBAMFBQQEAAABfQECAwAEEQUSITFBBhNRYQcicRQygZGhCCNCscEVUtHwJDNicoIJChYXGBkaJSYnKCkqNDU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6g4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2drh4uPk5ebn6Onq8fLz9PX29/j5+gEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoLEQACAQIEBAMEBwUEBAABAncAAQIDEQQFITEGEkFRB2FxEyIygQgUQpGhscEJIzNS8BVictEKFiQ04SXxFxgZGiYnKCkqNTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqCg4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2dri4+Tl5ufo6ery8/T19vf4+fr/2gAMAwEAAhEDEQA/APOLFHuLvaAxAOWKjOBnrXfeF43vZ2hIb7PbnLA9WPbNee6WzDUYsEjc+3j34/rXd6T9rg0H91KIWkmbfLnsAO9YVm7WNqCTkdyzBCFWJQo7DHFZl7d2FuCLy5SMMcAd65O2u7i31DyjdzzM77cse9Wdaiktb1UeAyEjfu25rk9nrZno8943RtNZaNrFg9vZsGmUFgSOSfWvN9Vjla3BIybeQocjkA4/r/OvQ9DZ7jyZ1tjGVAPzEbh6g8A/p+NYXivSGW41CWAkoV8zy0zkknI4+prSlPllZnNWhzRujhsp3IzRmP1qvn60ZruOE2INlzOoEiKSwALfXrxXpGnRW5sUsZ1VnUkbgOCePmGa8+0jTHF/bMGXiRevfn34rodU1Caw1WUKTgHnNctdNtJHTh2k7s6O20zTrXUCwlDzkmRiVAA56nFaOoT2Utq8xEU4QElMjOB1xXm39qJcNcm4lKuSNpBplvqEdtMZL+dNn8JZhx/WsXSb3OxVorRI9E0+/wBMSEm2RIgw/hGDVaRF1C6mVSrB0IIPevO/7Ub7RKYGbyjyK9C+G95YSXsv9oFgxUCPpj3/ABqHSa1FKqmtjzu58PyxXU0ayDarsBlOwP0qL+wpv+eg/wC+DXvc2keHpJ5HNqSWYnO0ev0qP+xfD3/Pp/46P8K6fbHF7NEPhvTPC0mk2snmIJtoLbx3rifiNptvDqxa3O5JPmBXpXJWF1qTW4a3DrGf4ydq/n3rd1C4a60iFJpg86KAW/r9KqdOStIUJLY5mysoLqV0uY2Nuw+96H1FaY0PRcjdLJIOpQqBnHbNWtGgjMcnnIdiqRkDPJ+nT/69UFlia/MbS5ABPXtWcpST0Oim421RXudPk8u4u41PkxtwK0vDMrwXQxuBPOW6fSttbyzgskjDjy2O2Rs9KwjJHY3DPE2633nIzyDjkZ9fSlrJWFzJO53ZkumJZVyDyDvo3Xf9z/x+vPG17LEiZwM9Mjj9KT+3v+m7/mP8Kv6syPbItXbH7QwycAkAegpkBzI6nkeX0/4EKdd/8fL/AO8f502D/XP/ANc//ZhXo1v4bOWHxIuWYA064IAHT+tci5K6rwSPmPSuvs/+Qbcfh/WuPk/5Cv8AwI15y3OnodFMAkUO0YyFJxx2NYeoE7U9zk+9blx/qoP91P5Vhah92P8Az2rSn8SIl8JRyfWjJ9aO1Fdpgf/Z" width="25" height="25" clip-path="url(#myCircle)"/>
-      <g transform="translate(30,16)">
-        <text class="stat bold">GeminiCLI_ScreenShare_Extension</text>
-      </g>
-      
-    <g data-testid="rank-circle" transform="translate(303.59062500000005, 0)">
-      <circle class="rank-circle-rim" cx="12.5" cy="12.5" r="14" />
-      <g class="rank-text"><text x="4" y="18.5">
-        S+
-       </text></g>
-    </g>
-    <g data-testid="rank-circle" transform="translate(353.59062500000005, 0)">
-      <circle class="rank-circle-rim" cx="12.5" cy="12.5" r="14" />
-      <g class="rank-text">
-        <text x="7.2" y="18.5">
-        B
-       </text>
-      </g>
-    </g>
-    
-    </g>
-  </g><g transform="translate(0, 165)">
-    <g class="stagger" style="animation-delay: 1200ms" transform="translate(25, 0)">
-      <defs>
-        <clipPath id="myCircle">
-          <circle cx="12.5" cy="12.5" r="12.5" fill="#FFFFFF" />
-        </clipPath>
-      </defs>
-      <image xlink:href="data:image/image/png;base64,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" width="25" height="25" clip-path="url(#myCircle)"/>
-      <g transform="translate(30,16)">
-        <text class="stat bold">Campus-HETG</text>
-      </g>
-      
-    <g data-testid="rank-circle" transform="translate(235, 0)">
-      <circle class="rank-circle-rim" cx="12.5" cy="12.5" r="14" />
-      <g class="rank-text"><text x="4" y="18.5">
-        S+
-       </text></g>
-    </g>
-    <g data-testid="rank-circle" transform="translate(285, 0)">
-      <circle class="rank-circle-rim" cx="12.5" cy="12.5" r="14" />
-      <g class="rank-text">
-        <text x="7.2" y="18.5">
-        B
        </text>
       </g>
     </g>
