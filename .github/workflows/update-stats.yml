@@ -1,6 +1,8 @@
 name: GitHub Readme CI
 
 on:
+  schedule:
+    - cron: '0 0 * * *' # Daily at midnight
   workflow_dispatch:
   push:
     branches:
@@ -116,40 +118,51 @@ jobs:
             echo "This directory contains auto-generated GitHub stats and visualizations." >> assets/README.md
           fi
 
-      - name: 6. Fetch GitHub Trophies
+      - name: 5. Fetch GitHub Trophies
         run: |
           curl -f --connect-timeout 30 --retry 3 --retry-delay 5 \
             -o "./assets/github-trophies.svg" \
             "https://github-profile-trophy.vercel.app/?username=${{ github.repository_owner }}&theme=onedark&no-frame=true&no-bg=true&margin-w=10&column=3" \
             || echo "Failed to fetch Trophies."
 
-      - name: 7. Fetch GitHub Stats
+      - name: 6. Fetch GitHub Stats
         run: |
           curl -f --connect-timeout 30 --retry 3 --retry-delay 5 \
             -o "./assets/github-stats.svg" \
             "https://github-readme-stats-rose-eight-73.vercel.app/api?username=${{ github.repository_owner }}&show_icons=true&include_all_commits=true&theme=tokyonight&show=reviews,prs_merged&count_private=true" \
             || echo "Failed to fetch GitHub Stats."
 
-      - name: 8. Fetch Top Languages
+      - name: 7. Fetch Top Languages
         run: |
           curl -f --connect-timeout 30 --retry 3 --retry-delay 5 \
             -o "./assets/top-languages.svg" \
             "https://github-readme-stats-rose-eight-73.vercel.app/api/top-langs/?username=${{ github.repository_owner }}&langs_count=10&layout=compact&theme=tokyonight&hide_border=false&include_all_commits=true&count_private=true" \
             || echo "Failed to fetch Top Languages."
 
-      - name: 9. Fetch GitHub Streak
+      - name: 8. Fetch GitHub Streak
         run: |
           curl -f --connect-timeout 30 --retry 3 --retry-delay 5 \
             -o "./assets/github-streak.svg" \
             "https://github-readme-streak-stats.herokuapp.com/?user=${{ github.repository_owner }}&theme=tokyonight&hide_border=false" \
             || echo "Failed to fetch GitHub Streak."
 
-      - name: 11. Configure Git
+      - name: 10. Fetch GitHub Contribution Card
+        uses: FrancoStino/github-contribution-card/action@main
+        env:
+          GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+        with:
+          username: FrancoStino
+          output-file: assets/github-contribution-card.svg
+          combine-all-yearly-contributions: 'false'
+          hide-contributor-rank: 'false'
+          theme: 'tokyonight'
+          
+      - name: 9. Configure Git
         run: |
           git config --local user.email "info@davideladisa.it"
           git config --local user.name "FrancoStino"
 
-      - name: 12. Commit all assets to before-pull
+      - name: 10. Commit all assets to before-pull
         run: |
           git add assets/
           if ! git diff --staged --quiet; then
@@ -159,7 +172,7 @@ jobs:
             echo "No changes to commit"
           fi
 
-      - name: 13. Create First PR (before-pull to develop)
+      - name: 11. Create First PR (before-pull to develop)
         id: create-pr-before
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -239,12 +252,12 @@ jobs:
 
           echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
 
-      - name: 14. Checkout develop branch
+      - name: 12. Checkout develop branch
         run: |
           git checkout develop
           git pull origin develop
 
-      - name: 15. Create Second PR (develop to main)
+      - name: 13. Create Second PR (develop to main)
         id: create-pr-main
         env:
           GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
