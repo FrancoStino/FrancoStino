@@ -1,33 +1,94 @@
 name: GitHub Readme CI
 
 on:
+  schedule:
+    - cron: '0 0 * * *' # Daily at midnight
   workflow_dispatch:
   push:
     branches:
       - main
+  issues:
+    types: [opened, edited]
 
 permissions:
   contents: write
   pull-requests: write
+  issues: write
 
 jobs:
   generate:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     if: |
-      github.actor != 'github-actions[bot]' && 
-      !contains(github.event.head_commit.message, 'Auto-update: GitHub Stats')
+      (github.event_name == 'issues' && contains(github.event.issue.title, 'Update')) ||
+      (github.event_name != 'issues' && github.actor != 'github-actions[bot]' && !contains(github.event.head_commit.message, 'Auto-update: GitHub Stats'))
+    
     outputs:
-      pr_number: ${{ steps.create-pr.outputs.pr_number }}
-
+      pr_number_before: ${{ steps.create-pr-before.outputs.pr_number }}
+      pr_number_main: ${{ steps.create-pr-main.outputs.pr_number }}
+      issue_number: ${{ steps.create-issue.outputs.issue_number }}
+    
     env:
       GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
-
+    
     steps:
-      - name: 1. Checkout Main Branch
-        uses: actions/checkout@v6
+      - name: 0. Checkout Main Branch
+        uses: actions/checkout@v7
         with:
           token: ${{ secrets.WORKFLOW_TOKEN }}
+          fetch-depth: 0
+
+      - name: 1. Create Issue
+        id: create-issue
+        env:
+          GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+        run: |
+          retry_command() {
+            local max_attempts=5
+            local timeout=30
+            local attempt=1
+            local exitCode=0
+            while (( attempt <= max_attempts )); do
+              echo "Attempt $attempt of $max_attempts..." >&2
+              if timeout $timeout "$@"; then
+                return 0
+              else
+                exitCode=$?
+                if (( attempt < max_attempts )); then
+                  echo "Command failed, waiting 10 seconds before retry..." >&2
+                  sleep 10
+                fi
+              fi
+              ((attempt++))
+            done
+            return $exitCode
+          }
+          
+          if [ "${{ github.event_name }}" == "issues" ]; then
+            ISSUE_NUMBER="${{ github.event.issue.number }}"
+            echo "Using existing issue #$ISSUE_NUMBER"
+          else
+            ISSUE_BODY="🤖 Aggiornamento automatico delle statistiche GitHub
+          
+          Questo aggiornamento include:
+          - 🏆 GitHub trophies
+          - 📊 GitHub stats
+          - ⌨️ Top languages
+          - 🔥 GitHub streak
+          
+          ---
+          *Issue creata automaticamente dal workflow*"
+          
+            echo "Creating new issue..."
+            ISSUE_URL=$(retry_command gh issue create \
+              --title "🔄 Update GitHub Stats & Visualizations" \
+              --body "$ISSUE_BODY" \
+              --assignee "FrancoStino")
+            ISSUE_NUMBER=$(echo "$ISSUE_URL" | grep -oP '\d+$')
+            echo "Issue created: #$ISSUE_NUMBER"
+          fi
+          
+          echo "issue_number=$ISSUE_NUMBER" >> "$GITHUB_OUTPUT"
 
       - name: 2. Create develop branch if not exists
         run: |
@@ -39,23 +100,23 @@ jobs:
           git checkout develop
           git pull origin develop
 
-      - name: 3. Create assets directory if not exists
+      - name: 3. Create before-pull branch if not exists
+        run: |
+          git fetch origin
+          if ! git rev-parse --verify origin/before-pull >/dev/null 2>&1; then
+            git checkout -b before-pull
+            git push origin before-pull
+          fi
+          git checkout before-pull
+          git pull origin before-pull
+
+      - name: 4. Create assets directory if not exists
         run: |
           if [ ! -d "assets" ]; then
             mkdir -p assets
             echo "# Assets Directory" > assets/README.md
             echo "This directory contains auto-generated GitHub stats and visualizations." >> assets/README.md
           fi
-
-      - name: 4. Generate GitHub Contributions Snake Animations
-        uses: Platane/snk/svg-only@v3
-        with:
-          github_user_name: ${{ github.repository_owner }}
-          outputs: |
-            assets/github-snake.svg?color_snake=orange&color_dots=#bfd6f6,#8dbdff,#64a1f4,#4b91f1,#3c7dd9
-            assets/github-snake-dark.svg?palette=github-dark&color_snake=#cca835&color_dots=#161b22,#1e415e,#2b5b84,#3b78a3,#4b91f1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 5. Fetch GitHub Trophies
         run: |
@@ -85,149 +146,356 @@ jobs:
             "https://github-readme-streak-stats.herokuapp.com/?user=${{ github.repository_owner }}&theme=tokyonight&hide_border=false" \
             || echo "Failed to fetch GitHub Streak."
 
-      - name: 9. Fetch Activity Graph
-        run: |
-          curl -f --connect-timeout 30 --retry 3 --retry-delay 5 \
-            -o "./assets/activity-graph.svg" \
-            "https://github-readme-activity-graph.vercel.app/graph?username=${{ github.repository_owner }}&custom_title=⚡%20Activity%20Graph&days=30&area=true&radius=8&hide_border=true&height=350&theme=react-dark&bg_color=050608&color=ffffff&title_color=ffffff&line=3572a5&point=ffffff&area_color=3572a5" \
-            || echo "Failed to fetch Activity Graph."
-
-      - name: 10. Configure Git (your account for commits)
+      - name: 10. Fetch GitHub Contribution Card
+        uses: FrancoStino/github-contribution-card/action@main
+        env:
+          GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+        with:
+          username: FrancoStino
+          output-file: assets/github-contribution-card.svg
+          combine-all-yearly-contributions: 'false'
+          hide-contributor-rank: 'false'
+          theme: 'tokyonight'
+          hide: 'B'
+          
+      - name: 9. Configure Git
         run: |
           git config --local user.email "info@davideladisa.it"
-          git config --local user.name "Davide Ladisa"
+          git config --local user.name "FrancoStino"
 
-      - name: 11. Commit Snake Animation (Light)
+      - name: 10. Commit all assets to before-pull
         run: |
-          if [ -f "assets/github-snake.svg" ]; then
-            git add assets/github-snake.svg
-            git diff --staged --quiet || git commit -m "🐍 Update: GitHub Snake Animation (Light Mode)"
+          git add assets/
+          if ! git diff --staged --quiet; then
+            git commit -m "🤖 Auto-update: GitHub Stats & Visualizations"
+            git push --force origin before-pull
+          else
+            echo "No changes to commit"
           fi
 
-      - name: 12. Commit Snake Animation (Dark)
-        run: |
-          if [ -f "assets/github-snake-dark.svg" ]; then
-            git add assets/github-snake-dark.svg
-            git diff --staged --quiet || git commit -m "🐍 Update: GitHub Snake Animation (Dark Mode)"
-          fi
-
-      - name: 13. Commit GitHub Trophies
-        run: |
-          if [ -f "assets/github-trophies.svg" ]; then
-            git add assets/github-trophies.svg
-            git diff --staged --quiet || git commit -m "🏆 Update: GitHub Trophies"
-          fi
-
-      - name: 14. Commit GitHub Stats
-        run: |
-          if [ -f "assets/github-stats.svg" ]; then
-            git add assets/github-stats.svg
-            git diff --staged --quiet || git commit -m "📊 Update: GitHub Stats"
-          fi
-
-      - name: 15. Commit Top Languages
-        run: |
-          if [ -f "assets/top-languages.svg" ]; then
-            git add assets/top-languages.svg
-            git diff --staged --quiet || git commit -m "⌨️ Update: Top Languages"
-          fi
-
-      - name: 16. Commit GitHub Streak
-        run: |
-          if [ -f "assets/github-streak.svg" ]; then
-            git add assets/github-streak.svg
-            git diff --staged --quiet || git commit -m "🔥 Update: GitHub Streak"
-          fi
-
-      - name: 17. Commit Activity Graph
-        run: |
-          if [ -f "assets/activity-graph.svg" ]; then
-            git add assets/activity-graph.svg
-            git diff --staged --quiet || git commit -m "⚡ Update: Activity Graph"
-          fi
-
-      - name: 18. Commit Assets README if new
-        run: |
-          if [ -f "assets/README.md" ]; then
-            git add assets/README.md
-            git diff --staged --quiet || git commit -m "📝 Update: Assets README"
-          fi
-
-      - name: 19. Push to develop branch
-        run: git push origin develop
-
-      - name: 20. Create Pull Request
-        id: create-pr
+      - name: 11. Create First PR (before-pull to develop)
+        id: create-pr-before
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          EXISTING_PR=$(gh pr list --base main --head develop --json number --jq '.[0].number // empty')
+          retry_command() {
+            local max_attempts=5
+            local timeout=30
+            local attempt=1
+            local exitCode=0
+            while (( attempt <= max_attempts )); do
+              echo "Attempt $attempt of $max_attempts..." >&2
+              if timeout $timeout "$@"; then
+                return 0
+              else
+                exitCode=$?
+                if (( attempt < max_attempts )); then
+                  echo "Command failed, waiting 10 seconds before retry..." >&2
+                  sleep 10
+                fi
+              fi
+              ((attempt++))
+            done
+            return $exitCode
+          }
+
+          echo "Checking for existing PR..."
+          EXISTING_PR=$(retry_command gh pr list --base develop --head before-pull --json number --jq '.[0].number // empty')
 
           if [ -z "$EXISTING_PR" ]; then
-            gh pr create \
-              --base main \
-              --head develop \
-              --title "🤖 Auto-update: GitHub Stats & Visualizations" \
-              --body "update"
 
-            PR_NUMBER=$(gh pr list --base main --head develop --json number --jq '.[0].number')
+            # ✅ FIX: verifica se ci sono commit tra before-pull e develop prima di creare la PR
+            git fetch origin before-pull develop
+            COMMITS_AHEAD=$(git rev-list --count origin/develop..origin/before-pull 2>/dev/null || echo "0")
+
+            if [ "$COMMITS_AHEAD" = "0" ]; then
+              echo "⚠️ No commits between before-pull and develop, skipping PR creation"
+              # ✅ FIX: chiudi la issue anche se non ci sono aggiornamenti
+              ISSUE_NUMBER="${{ steps.create-issue.outputs.issue_number }}"
+              if [ -n "$ISSUE_NUMBER" ]; then
+                echo "Closing issue #$ISSUE_NUMBER (no changes detected)..."
+                gh issue close "$ISSUE_NUMBER" \
+                  --comment "ℹ️ Nessun aggiornamento necessario: le statistiche non sono cambiate rispetto all'ultima esecuzione." \
+                  || echo "⚠️ Could not close issue #$ISSUE_NUMBER"
+              fi
+              echo "pr_number=" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+
+            ISSUE_NUMBER="${{ steps.create-issue.outputs.issue_number }}"
+            PR_BODY="Aggiornamento automatico delle statistiche GitHub.
+
+          Closes #${ISSUE_NUMBER}
+
+          Questa PR contiene:
+          - 🏆 GitHub trophies
+          - 📊 GitHub stats
+          - ⌨️ Top languages
+          - 🔥 GitHub streak"
+
+            echo "Creating new PR ($COMMITS_AHEAD commits ahead)..."
+            retry_command gh pr create \
+              --base develop \
+              --head before-pull \
+              --title "🔄 First Update: Stats to Develop" \
+              --body "$PR_BODY"
+
+            echo "Getting PR number..."
+            PR_NUMBER=$(retry_command gh pr list --base develop --head before-pull --json number --jq '.[0].number')
             echo "PR created: #$PR_NUMBER"
+
+            echo "Assigning PR to repository owner..."
+            retry_command gh pr edit "$PR_NUMBER" --add-assignee "${{ github.repository_owner }}"
           else
             PR_NUMBER=$EXISTING_PR
             echo "Using existing PR #$PR_NUMBER"
           fi
 
           echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
-          echo "Final PR number: $PR_NUMBER"
 
-  auto-approve:
-    needs: generate
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-    runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
+      - name: 12. Checkout develop branch
+        run: |
+          git checkout develop
+          git pull origin develop
 
-    steps:
-      - name: Auto-approve PR
-        uses: hmarr/auto-approve-action@v4
-        with:
-          github-token: ${{ secrets.WORKFLOW_TOKEN }}
-          review-message: "✅ Auto-approved: All GitHub stats updated successfully"
-          pull-request-number: ${{ needs.generate.outputs.pr_number }}
-
-  auto-merge:
-    needs: auto-approve
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-    runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v6
-
-      - name: Auto-merge approved PR
+      - name: 13. Create Second PR (develop to main)
+        id: create-pr-main
         env:
           GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         run: |
-          echo "Debug: PR_NUMBER from output = '${{ needs.generate.outputs.pr_number }}'"
+          retry_command() {
+            local max_attempts=5
+            local timeout=30
+            local attempt=1
+            local exitCode=0
+            while (( attempt <= max_attempts )); do
+              echo "Attempt $attempt of $max_attempts..." >&2
+              if timeout $timeout "$@"; then
+                return 0
+              else
+                exitCode=$?
+                if (( attempt < max_attempts )); then
+                  echo "Command failed, waiting 10 seconds before retry..." >&2
+                  sleep 10
+                fi
+              fi
+              ((attempt++))
+            done
+            return $exitCode
+          }
           
-          PR_NUMBER="${{ needs.generate.outputs.pr_number }}"
+          echo "Checking for existing PR..."
+          EXISTING_PR=$(gh pr list --base main --head develop --state open --json number --jq '.[0].number // empty' 2>/dev/null || echo "")
           
-          if [ -z "$PR_NUMBER" ]; then
-            echo "❌ PR_NUMBER is empty, trying to find PR manually..."
-            PR_NUMBER=$(gh pr list --base main --head develop --json number --jq '.[0].number // empty')
+          if [ -n "$EXISTING_PR" ]; then
+            PR_NUMBER=$EXISTING_PR
+            echo "Using existing PR #$PR_NUMBER"
+            echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          
+          git fetch origin main develop
+          COMMITS_AHEAD=$(git rev-list --count origin/main..origin/develop 2>/dev/null || echo "0")
+          
+          if [ "$COMMITS_AHEAD" = "0" ]; then
+            echo "⚠️ No commits between main and develop, skipping PR creation"
+            echo "pr_number=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          
+          echo "Creating new PR ($COMMITS_AHEAD commits ahead)..."
+          
+          if PR_URL=$(gh pr create \
+            --base main \
+            --head develop \
+            --title "🤖 Auto-update: GitHub Stats & Visualizations" \
+            --body "Aggiornamento automatico da develop a main" 2>&1); then
             
-            if [ -z "$PR_NUMBER" ]; then
-              echo "❌ No PR found, cannot merge"
+            PR_NUMBER=$(gh pr list --base main --head develop --state open --json number --jq '.[0].number')
+            echo "PR created: #$PR_NUMBER"
+            retry_command gh pr edit "$PR_NUMBER" --add-assignee FrancoStino
+            echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+          else
+            if echo "$PR_URL" | grep -q "already exists"; then
+              EXISTING_PR_URL=$(echo "$PR_URL" | grep -oP 'https://[^\s]+' | head -1)
+              PR_NUMBER=$(echo "$EXISTING_PR_URL" | grep -oP '\d+$')
+              echo "PR already exists: #$PR_NUMBER"
+              echo "pr_number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
+            else
+              echo "⚠️ Failed to create PR: $PR_URL"
+              echo "pr_number=" >> "$GITHUB_OUTPUT"
+            fi
+          fi
+
+  review-and-merge-first-pr:
+    needs: generate
+    if: needs.generate.outputs.pr_number_before != ''
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+        with:
+          token: ${{ secrets.WORKFLOW_TOKEN }}
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config --local user.email "info@davideladisa.it"
+          git config --local user.name "FrancoStino"
+
+      - name: Resolve conflicts and merge PR
+        env:
+          GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+        run: |
+          PR_NUMBER="${{ needs.generate.outputs.pr_number_before }}"
+          
+          PR_STATE=$(gh pr view "$PR_NUMBER" --json state --jq '.state')
+          echo "PR #$PR_NUMBER state: $PR_STATE"
+          
+          if [ "$PR_STATE" = "MERGED" ]; then
+            echo "✅ PR #$PR_NUMBER is already merged, skipping..."
+            exit 0
+          fi
+          
+          if [ "$PR_STATE" = "CLOSED" ]; then
+            echo "⚠️ PR #$PR_NUMBER is already closed, skipping..."
+            exit 0
+          fi
+          
+          echo "Approving PR #$PR_NUMBER..."
+          gh pr review "$PR_NUMBER" --approve --body "✅ Reviewed and approved automatically" || true
+          
+          git fetch origin
+          git checkout develop
+          git pull origin develop
+          
+          echo "Merging before-pull into develop with conflict resolution..."
+          if ! git merge origin/before-pull --no-edit -m "Merge PR #$PR_NUMBER: Stats update [skip ci]"; then
+            echo "⚠️ Merge conflicts detected, resolving..."
+            git checkout --theirs assets/
+            git add assets/
+            git commit --no-edit -m "Merge PR #$PR_NUMBER: Stats update [skip ci]"
+          fi
+          
+          MAX_RETRIES=5
+          RETRY=0
+          until git push origin develop; do
+            RETRY=$((RETRY + 1))
+            if [ "$RETRY" -ge "$MAX_RETRIES" ]; then
+              echo "❌ Push failed after $MAX_RETRIES attempts"
               exit 1
             fi
-            
-            echo "Found PR #$PR_NUMBER"
+            echo "⚠️ Push rejected, pulling and rebasing ($RETRY/$MAX_RETRIES)..."
+            git pull origin develop --rebase
+          done
+          
+          PR_STATE_AFTER=$(gh pr view "$PR_NUMBER" --json state --jq '.state')
+          
+          if [ "$PR_STATE_AFTER" = "OPEN" ]; then
+            echo "Closing PR #$PR_NUMBER..."
+            gh pr close "$PR_NUMBER" --comment "✅ Merged manually with conflict resolution" --delete-branch=false
+          else
+            echo "✅ PR #$PR_NUMBER already merged/closed"
+          fi
+          
+          echo "✅ Merge process completed successfully"
+
+  auto-merge-second-pr:
+    needs: [generate, review-and-merge-first-pr]
+    if: needs.generate.outputs.pr_number_main != ''
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: write
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Auto-merge second PR
+        env:
+          GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+        run: |
+          retry_command() {
+            local max_attempts=5
+            local timeout=30
+            local attempt=1
+            local exitCode=0
+            while (( attempt <= max_attempts )); do
+              echo "Attempt $attempt of $max_attempts..." >&2
+              if timeout $timeout "$@"; then
+                return 0
+              else
+                exitCode=$?
+                if (( attempt < max_attempts )); then
+                  echo "Command failed, waiting 10 seconds before retry..." >&2
+                  sleep 10
+                fi
+              fi
+              ((attempt++))
+            done
+            return $exitCode
+          }
+          
+          PR_NUMBER="${{ needs.generate.outputs.pr_number_main }}"
+          
+          PR_STATE=$(gh pr view "$PR_NUMBER" --json state --jq '.state' 2>/dev/null || echo "UNKNOWN")
+          echo "PR #$PR_NUMBER state: $PR_STATE"
+          
+          if [ "$PR_STATE" = "MERGED" ]; then
+            echo "✅ PR #$PR_NUMBER is already merged, skipping..."
+            exit 0
+          fi
+          
+          if [ "$PR_STATE" = "CLOSED" ]; then
+            echo "⚠️ PR #$PR_NUMBER is already closed, skipping..."
+            exit 0
           fi
           
           echo "Waiting for PR #$PR_NUMBER to be mergeable..."
           sleep 10
+          
+          echo "Merging PR #$PR_NUMBER..."
+          retry_command gh pr merge "$PR_NUMBER" --merge --subject "Merge pull request #$PR_NUMBER [skip ci]"
+          
+          echo "✅ Second PR #$PR_NUMBER merged successfully"
 
-          gh pr merge "$PR_NUMBER" --merge --subject "Merge pull request #$PR_NUMBER [skip ci]"
-          echo "✅ PR #$PR_NUMBER merged successfully"
+      - name: Close issue after successful merge
+        if: success()
+        env:
+          GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+        run: |
+          retry_command() {
+            local max_attempts=5
+            local timeout=30
+            local attempt=1
+            local exitCode=0
+            while (( attempt <= max_attempts )); do
+              echo "Attempt $attempt of $max_attempts..." >&2
+              if timeout $timeout "$@"; then
+                return 0
+              else
+                exitCode=$?
+                if (( attempt < max_attempts )); then
+                  echo "Command failed, waiting 10 seconds before retry..." >&2
+                  sleep 10
+                fi
+              fi
+              ((attempt++))
+            done
+            return $exitCode
+          }
+          
+          ISSUE_NUMBER="${{ needs.generate.outputs.issue_number }}"
+          
+          if [ -n "$ISSUE_NUMBER" ]; then
+            echo "Closing issue #$ISSUE_NUMBER..."
+            retry_command gh issue close "$ISSUE_NUMBER" --comment "✅ Aggiornamento completato con successo! Tutte le statistiche sono state aggiornate e le PR sono state mergiate."
+            echo "✅ Issue #$ISSUE_NUMBER closed successfully"
+          else
+            echo "⚠️ No issue number found to close"
+          fi

@@ -1,0 +1,57 @@
+name: Monthly Issue Closer
+
+on:
+  schedule:
+    # Esegui il primo giorno di ogni mese alle 00:00 UTC
+    - cron: '0 0 1 * *'
+  workflow_dispatch: # Permetti esecuzione manuale
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  close-monthly-issues:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Close all open issues
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "🔍 Cercando issue aperte..."
+          
+          ISSUES=$(gh issue list --repo ${{ github.repository }} --state open --json number --limit 1000 --jq '.[] | .number')
+          
+          if [ -z "$ISSUES" ]; then
+            echo "✅ Nessuna issue aperta trovata"
+            exit 0
+          fi
+          
+          ISSUE_COUNT=$(echo "$ISSUES" | wc -l)
+          echo "📊 Trovate $ISSUE_COUNT issue aperte"
+          
+          CURRENT_DATE=$(date '+%Y-%m-%d')
+          
+          for ISSUE_NUMBER in $ISSUES; do
+            echo "🔒 Chiudendo issue #$ISSUE_NUMBER..."
+            
+            COMMENT="🤖 Chiusura automatica mensile
+          
+          Questa issue è stata chiusa automaticamente il $CURRENT_DATE come parte della pulizia mensile del repository.
+          
+          Se questa issue richiede ancora attenzione, sentiti libero di riaprirla."
+            
+            gh issue close "$ISSUE_NUMBER" --repo ${{ github.repository }} --comment "$COMMENT"
+            
+            if [ $? -eq 0 ]; then
+              echo "✅ Issue #$ISSUE_NUMBER chiusa con successo"
+            else
+              echo "❌ Errore nella chiusura dell'issue #$ISSUE_NUMBER"
+            fi
+            
+            sleep 2
+          done
+          
+          echo "🎉 Completata la chiusura di tutte le issue!"
+          
