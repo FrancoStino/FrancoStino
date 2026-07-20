@@ -146,6 +146,8 @@ jobs:
             || echo "Failed to fetch GitHub Streak."
 
       - name: 10. Fetch GitHub Contribution Card
+        id: contribution-card
+        continue-on-error: true
         uses: FrancoStino/github-contribution-card/action@main
         env:
           GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
@@ -156,6 +158,11 @@ jobs:
           hide-contributor-rank: 'false'
           theme: 'tokyonight'
           hide: 'B'
+
+      - name: 10b. Warn if contribution card failed
+        if: steps.contribution-card.outcome == 'failure'
+        run: |
+          echo "⚠️ Contribution card generation failed (probabile WORKFLOW_TOKEN scaduto/senza permessi o rate limit GitHub API). Proseguo comunque con l'asset esistente."
           
       - name: 9. Configure Git
         run: |
