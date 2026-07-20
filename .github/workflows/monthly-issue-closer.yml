@@ -8,6 +8,7 @@ on:
 
 permissions:
   issues: write
+  pull-requests: write
   contents: read
 
 jobs:
@@ -15,6 +16,41 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+      - name: Close stale open PRs
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "🔍 Cercando PR aperte..."
+
+          PRS=$(gh pr list --repo ${{ github.repository }} --state open --json number --limit 1000 --jq '.[] | .number')
+
+          if [ -z "$PRS" ]; then
+            echo "✅ Nessuna PR aperta trovata"
+          else
+            PR_COUNT=$(echo "$PRS" | wc -l)
+            echo "📊 Trovate $PR_COUNT PR aperte"
+
+            for PR_NUMBER in $PRS; do
+              echo "🔒 Chiudendo PR #$PR_NUMBER..."
+
+              gh pr close "$PR_NUMBER" --repo ${{ github.repository }} --comment "🤖 Chiusura automatica mensile
+
+          Questa PR è stata chiusa automaticamente come parte della pulizia mensile del repository, perché rimasta aperta troppo a lungo (probabile bug di sincronizzazione ora corretto).
+
+          Se richiede ancora attenzione, sentiti libero di riaprirla o ricrearla."
+
+              if [ $? -eq 0 ]; then
+                echo "✅ PR #$PR_NUMBER chiusa con successo"
+              else
+                echo "❌ Errore nella chiusura della PR #$PR_NUMBER"
+              fi
+
+              sleep 2
+            done
+
+            echo "🎉 Completata la chiusura di tutte le PR!"
+          fi
+
       - name: Close all open issues
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -54,4 +90,3 @@ jobs:
           done
           
           echo "🎉 Completata la chiusura di tutte le issue!"
-          
