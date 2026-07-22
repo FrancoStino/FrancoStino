@@ -124,19 +124,36 @@ jobs:
             "https://github-profile-trophy.vercel.app/?username=${{ github.repository_owner }}&theme=onedark&no-frame=true&no-bg=true&margin-w=10&column=3" \
             || echo "Failed to fetch Trophies."
 
-      - name: 6. Fetch GitHub Stats
-        run: |
-          curl -f --connect-timeout 30 --retry 3 --retry-delay 5 \
-            -o "./assets/github-stats.svg" \
-            "https://github-readme-stats-rose-eight-73.vercel.app/api?username=${{ github.repository_owner }}&show_icons=true&include_all_commits=true&theme=tokyonight&show=reviews,prs_merged&count_private=true" \
-            || echo "Failed to fetch GitHub Stats."
+      - name: 6. Generate GitHub Stats card
+        id: stats-card
+        continue-on-error: true
+        uses: stats-organization/github-readme-stats-action@v2
+        with:
+          card: stats
+          options: username=${{ github.repository_owner }}&show_icons=true&include_all_commits=true&theme=tokyonight&show=reviews,prs_merged&count_private=true
+          path: assets/github-stats.svg
+          token: ${{ secrets.WORKFLOW_TOKEN }}
 
-      - name: 7. Fetch Top Languages
-        run: |
-          curl -f --connect-timeout 30 --retry 3 --retry-delay 5 \
-            -o "./assets/top-languages.svg" \
-            "https://github-readme-stats-rose-eight-73.vercel.app/api/top-langs/?username=${{ github.repository_owner }}&langs_count=10&layout=compact&theme=tokyonight&hide_border=false&include_all_commits=true&count_private=true" \
-            || echo "Failed to fetch Top Languages."
+      - name: 7. Generate Top Languages card
+        id: top-langs-card
+        continue-on-error: true
+        uses: stats-organization/github-readme-stats-action@v2
+        with:
+          card: top-langs
+          options: username=${{ github.repository_owner }}&langs_count=10&layout=compact&theme=tokyonight&hide_border=false&include_all_commits=true&count_private=true
+          path: assets/top-languages.svg
+          token: ${{ secrets.WORKFLOW_TOKEN }}
+
+      # 7b. TODO: dimmi quale repo vuoi nel pin (owner/repo) e scommento/aggiusto questo step
+      # - name: 7b. Generate Pin card
+      #   id: pin-card
+      #   continue-on-error: true
+      #   uses: stats-organization/github-readme-stats-action@v2
+      #   with:
+      #     card: pin
+      #     options: username=${{ github.repository_owner }}&repo=NOME_REPO
+      #     path: assets/pin-NOME_REPO.svg
+      #     token: ${{ secrets.WORKFLOW_TOKEN }}
 
       - name: 8. Fetch GitHub Streak
         run: |
