@@ -8,8 +8,8 @@
         role="img"
         aria-labelledby="descId"
       >
-        <title id="titleId">Davide Ladisa's GitHub Stats, Rank: A</title>
-        <desc id="descId">Total Stars Earned: 83, Total Commits  : 53061, Total PRs: 9314, Total PRs Merged: 9273, Total PRs Reviewed: 8729, Total Issues: 9278, Contributed to (last year): 24</desc>
+        <title id="titleId">Davide Ladisa&#39;s GitHub Stats, Rank: A</title>
+        <desc id="descId">Total Stars Earned: 83, Total Commits  : 53063, Total PRs: 9314, Total PRs Merged: 9273, Total PRs Reviewed: 8729, Total Issues: 9279, Contributed to (last year): 24</desc>
         <style>
           .header {
             font: 600 18px 'Segoe UI', Ubuntu, Sans-Serif;
@@ -126,7 +126,7 @@
         y="0"
         class="header"
         data-testid="header"
-      >Davide Ladisa's GitHub Stats</text>
+      >Davide Ladisa&#39;s GitHub Stats</text>
     </g>
       </g>
     
