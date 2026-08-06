@@ -108,9 +108,12 @@ jobs:
         id: trophies-card
         continue-on-error: true
         uses: Erik-Donath/github-profile-trophy@feature/generate-svg
+        env:
+          GITHUB_TOKEN1: ${{ secrets.WORKFLOW_TOKEN }}
+          GITHUB_TOKEN2: ${{ secrets.WORKFLOW_TOKEN }}
         with:
           username: ${{ github.repository_owner }}
-          output_path: assets/github-trophies.svg
+          file: assets/github-trophies.svg
           token: ${{ secrets.WORKFLOW_TOKEN }}
 
       - name: 4b. Warn if trophies failed
