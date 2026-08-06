@@ -113,7 +113,8 @@ jobs:
           GITHUB_TOKEN2: ${{ secrets.WORKFLOW_TOKEN }}
         with:
           username: ${{ github.repository_owner }}
-          file: assets/github-trophies.svg
+-          file: assets/github-trophies.svg
++          output_path: assets/github-trophies.svg
           token: ${{ secrets.WORKFLOW_TOKEN }}
 
       - name: 4b. Warn if trophies failed
