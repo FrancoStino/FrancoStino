@@ -26,7 +26,7 @@ Do you like numbers and charts? Let's see some then:
   <summary>📊 Profile's stats</summary>
   <br/>
     <p align="center">
-      <picture>
+      <!-- <picture>
         <source
           srcset="./assets/github-stats.svg"
           media="(prefers-color-scheme: dark)"
@@ -35,8 +35,8 @@ Do you like numbers and charts? Let's see some then:
           srcset="./assets/github-stats.svg"
           media="(prefers-color-scheme: light), (prefers-color-scheme: no-preference)"
         />
-        <img src="./assets/github-stats.svg" alt="GitHub Stats" />
-      </picture>
+        </picture> -->
+        <img src="https://github-stats-extended.vercel.app/api?username=FrancoStino&show_icons=true&theme=tokyonight" alt="GitHub Stats" />
     </p><br/>
     <p align="center">
       <a href="https://github.com/FrancoStino">
