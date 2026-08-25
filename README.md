@@ -36,7 +36,7 @@ Do you like numbers and charts? Let's see some then:
           media="(prefers-color-scheme: light), (prefers-color-scheme: no-preference)"
         />
         </picture> -->
-        <img src="https://github-stats-extended.vercel.app/api?username=FrancoStino&show_icons=true&include_all_commits=true&theme=tokyonight" alt="GitHub Stats" />
+        <img src="https://github-stats-extended.vercel.app/api?username=FrancoStino&show_icons=true&theme=tokyonight" alt="GitHub Stats" />
     </p><br/>
     <p align="center">
       <a href="https://github.com/FrancoStino">
