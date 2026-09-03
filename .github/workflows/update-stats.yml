@@ -38,8 +38,118 @@ jobs:
           git config --local user.email "info@davideladisa.it"
           git config --local user.name "FrancoStino"
 
-      - name: 1. Create Issue
+      - name: 1. Reset before-pull from main
+        run: |
+          # before-pull esiste solo per veicolare gli asset generati: la
+          # ricreiamo sempre da main invece di mergiarla, così evitiamo
+          # conflitti e il vecchio "|| true" che li ignorava silenziosamente.
+          git fetch origin main
+          git checkout -B before-pull origin/main
+
+      - name: 2. Create assets directory if not exists
+        run: |
+          if [ ! -d "assets" ]; then
+            mkdir -p assets
+            echo "# Assets Directory" > assets/README.md
+            echo "This directory contains auto-generated GitHub stats and visualizations." >> assets/README.md
+          fi
+
+      - name: 3. Generate GitHub Trophies
+        id: trophies-card
+        continue-on-error: true
+        uses: Erik-Donath/github-profile-trophy@feature/generate-svg
+        env:
+          GITHUB_TOKEN1: ${{ secrets.WORKFLOW_TOKEN }}
+          GITHUB_TOKEN2: ${{ secrets.WORKFLOW_TOKEN }}
+        with:
+          username: ${{ github.repository_owner }}
+          column: '4'
+          file: assets/github-trophies.svg
+          output_path: assets/github-trophies.svg
+          token: ${{ secrets.WORKFLOW_TOKEN }}
+
+      - name: 3b. Warn if trophies failed
+        if: steps.trophies-card.outcome == 'failure'
+        run: echo "⚠️ Generazione trophies fallita, asset precedente non aggiornato."
+
+      - name: 4. Generate GitHub Stats card
+        id: stats-card
+        continue-on-error: true
+        uses: stats-organization/github-readme-stats-action@v2
+        with:
+          card: stats
+          options: username=${{ github.repository_owner }}&show_icons=true&include_all_commits=true&theme=tokyonight&show=reviews,prs_merged&count_private=true
+          path: assets/github-stats.svg
+          token: ${{ secrets.WORKFLOW_TOKEN }}
+          fail_on_error: true
+
+      - name: 4b. Warn if stats card failed
+        if: steps.stats-card.outcome == 'failure'
+        run: echo "⚠️ Generazione stats card fallita (probabile rate limit o scope PAT insufficienti), asset precedente non aggiornato."
+
+      - name: 5. Generate Top Languages card
+        id: top-langs-card
+        continue-on-error: true
+        uses: stats-organization/github-readme-stats-action@v2
+        with:
+          card: top-langs
+          options: username=${{ github.repository_owner }}&langs_count=10&layout=compact&theme=tokyonight&hide_border=false&include_all_commits=true&count_private=true
+          path: assets/top-languages.svg
+          token: ${{ secrets.WORKFLOW_TOKEN }}
+          fail_on_error: true
+
+      - name: 5b. Warn if top languages card failed
+        if: steps.top-langs-card.outcome == 'failure'
+        run: echo "⚠️ Generazione top languages card fallita, asset precedente non aggiornato."
+
+      - name: 6. Generate GitHub Streak card
+        id: streak-card
+        continue-on-error: true
+        uses: DenverCoder1/github-readme-streak-stats@main
+        with:
+          options: user=${{ github.repository_owner }}&theme=tokyonight&hide_border=false
+          path: assets/github-streak.svg
+          token: ${{ secrets.WORKFLOW_TOKEN }}
+
+      - name: 6b. Warn if streak card failed
+        if: steps.streak-card.outcome == 'failure'
+        run: echo "⚠️ Generazione streak card fallita, asset precedente non aggiornato."
+
+      - name: 7. Fetch GitHub Contribution Card
+        id: contribution-card
+        continue-on-error: true
+        uses: FrancoStino/github-contribution-card/action@main
+        env:
+          GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+        with:
+          username: FrancoStino
+          output-file: assets/github-contribution-card.svg
+          combine-all-yearly-contributions: 'false'
+          hide-contributor-rank: 'false'
+          theme: 'tokyonight'
+          hide: 'B'
+
+      - name: 7b. Warn if contribution card failed
+        if: steps.contribution-card.outcome == 'failure'
+        run: |
+          echo "⚠️ Contribution card generation failed (probabile WORKFLOW_TOKEN scaduto/senza permessi o rate limit GitHub API). Proseguo comunque con l'asset esistente."
+
+      - name: 8. Commit assets and detect changes
+        id: commit
+        run: |
+          git add assets/
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+          else
+            git commit -m "🤖 Auto-update: GitHub Stats & Visualizations"
+            git push --force origin before-pull
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: 9. Create Issue
         id: create-issue
+        if: steps.commit.outputs.has_changes == 'true'
         env:
           GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         run: |
@@ -85,116 +195,11 @@ jobs:
 
           echo "issue_number=$ISSUE_NUMBER" >> "$GITHUB_OUTPUT"
 
-      - name: 2. Create before-pull branch if not exists
-        run: |
-          git fetch origin
-          if ! git rev-parse --verify origin/before-pull >/dev/null 2>&1; then
-            git checkout -b before-pull
-            git push origin before-pull
-          fi
-          git checkout before-pull
-          git pull origin before-pull
-          git merge origin/main --no-edit || true
-
-      - name: 3. Create assets directory if not exists
-        run: |
-          if [ ! -d "assets" ]; then
-            mkdir -p assets
-            echo "# Assets Directory" > assets/README.md
-            echo "This directory contains auto-generated GitHub stats and visualizations." >> assets/README.md
-          fi
-
-      - name: 4. Generate GitHub Trophies
-        id: trophies-card
-        continue-on-error: true
-        uses: Erik-Donath/github-profile-trophy@feature/generate-svg
-        env:
-          GITHUB_TOKEN1: ${{ secrets.WORKFLOW_TOKEN }}
-          GITHUB_TOKEN2: ${{ secrets.WORKFLOW_TOKEN }}
-        with:
-          username: ${{ github.repository_owner }}
-          file: assets/github-trophies.svg
-          output_path: assets/github-trophies.svg
-          token: ${{ secrets.WORKFLOW_TOKEN }}
-
-      - name: 4b. Warn if trophies failed
-        if: steps.trophies-card.outcome == 'failure'
-        run: echo "⚠️ Generazione trophies fallita, asset precedente non aggiornato."
-
-      - name: 5. Generate GitHub Stats card
-        id: stats-card
-        continue-on-error: true
-        uses: stats-organization/github-readme-stats-action@v2
-        with:
-          card: stats
-          options: username=${{ github.repository_owner }}&show_icons=true&include_all_commits=true&theme=tokyonight&show=reviews,prs_merged&count_private=true
-          path: assets/github-stats.svg
-          token: ${{ secrets.WORKFLOW_TOKEN }}
-
-      - name: 5b. Warn if stats card failed
-        if: steps.stats-card.outcome == 'failure'
-        run: echo "⚠️ Generazione stats card fallita, asset precedente non aggiornato."
-
-      - name: 6. Generate Top Languages card
-        id: top-langs-card
-        continue-on-error: true
-        uses: stats-organization/github-readme-stats-action@v2
-        with:
-          card: top-langs
-          options: username=${{ github.repository_owner }}&langs_count=10&layout=compact&theme=tokyonight&hide_border=false&include_all_commits=true&count_private=true
-          path: assets/top-languages.svg
-          token: ${{ secrets.WORKFLOW_TOKEN }}
-
-      - name: 6b. Warn if top languages card failed
-        if: steps.top-langs-card.outcome == 'failure'
-        run: echo "⚠️ Generazione top languages card fallita, asset precedente non aggiornato."
-
-      - name: 7. Generate GitHub Streak card
-        id: streak-card
-        continue-on-error: true
-        uses: DenverCoder1/github-readme-streak-stats@main
-        with:
-          options: user=${{ github.repository_owner }}&theme=tokyonight&hide_border=false
-          path: assets/github-streak.svg
-          token: ${{ secrets.WORKFLOW_TOKEN }}
-
-      - name: 7b. Warn if streak card failed
-        if: steps.streak-card.outcome == 'failure'
-        run: echo "⚠️ Generazione streak card fallita, asset precedente non aggiornato."
-
-      - name: 8. Fetch GitHub Contribution Card
-        id: contribution-card
-        continue-on-error: true
-        uses: FrancoStino/github-contribution-card/action@main
-        env:
-          GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
-        with:
-          username: FrancoStino
-          output-file: assets/github-contribution-card.svg
-          combine-all-yearly-contributions: 'false'
-          hide-contributor-rank: 'false'
-          theme: 'tokyonight'
-          hide: 'B'
-
-      - name: 8b. Warn if contribution card failed
-        if: steps.contribution-card.outcome == 'failure'
-        run: |
-          echo "⚠️ Contribution card generation failed (probabile WORKFLOW_TOKEN scaduto/senza permessi o rate limit GitHub API). Proseguo comunque con l'asset esistente."
-
-      - name: 9. Commit all assets to before-pull
-        run: |
-          git add assets/
-          if ! git diff --staged --quiet; then
-            git commit -m "🤖 Auto-update: GitHub Stats & Visualizations"
-            git push --force origin before-pull
-          else
-            echo "No changes to commit"
-          fi
-
       - name: 10. Create PR (before-pull to main)
         id: create-pr
+        if: steps.commit.outputs.has_changes == 'true'
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
         run: |
           retry_command() {
             local max_attempts=5
@@ -221,23 +226,6 @@ jobs:
           EXISTING_PR=$(retry_command gh pr list --base main --head before-pull --json number --jq '.[0].number // empty')
 
           if [ -z "$EXISTING_PR" ]; then
-
-            git fetch origin before-pull main
-            COMMITS_AHEAD=$(git rev-list --count origin/main..origin/before-pull 2>/dev/null || echo "0")
-
-            if [ "$COMMITS_AHEAD" = "0" ]; then
-              echo "⚠️ No commits between before-pull and main, skipping PR creation"
-              ISSUE_NUMBER="${{ steps.create-issue.outputs.issue_number }}"
-              if [ -n "$ISSUE_NUMBER" ]; then
-                echo "Closing issue #$ISSUE_NUMBER (no changes detected)..."
-                gh issue close "$ISSUE_NUMBER" \
-                  --comment "ℹ️ Nessun aggiornamento necessario: le statistiche non sono cambiate rispetto all'ultima esecuzione." \
-                  || echo "⚠️ Could not close issue #$ISSUE_NUMBER"
-              fi
-              echo "pr_number=" >> "$GITHUB_OUTPUT"
-              exit 0
-            fi
-
             ISSUE_NUMBER="${{ steps.create-issue.outputs.issue_number }}"
             PR_BODY="Aggiornamento automatico delle statistiche GitHub.
 
@@ -249,7 +237,7 @@ jobs:
           - ⌨️ Top languages
           - 🔥 GitHub streak"
 
-            echo "Creating new PR ($COMMITS_AHEAD commits ahead)..."
+            echo "Creating new PR..."
             retry_command gh pr create \
               --base main \
               --head before-pull \
@@ -315,12 +303,14 @@ jobs:
           git checkout main
           git pull origin main
 
-          echo "Merging before-pull into main with conflict resolution..."
+          echo "Merging before-pull into main..."
+          # before-pull viene ricreata da main ad ogni run (vedi step 1 del
+          # job "generate"), quindi qui il merge è sempre fast-forward: se
+          # fallisce è un caso anomalo che merita attenzione manuale, non
+          # una risoluzione automatica silenziosa.
           if ! git merge origin/before-pull --no-edit -m "Merge PR #$PR_NUMBER: Stats update [skip ci]"; then
-            echo "⚠️ Merge conflicts detected, resolving..."
-            git checkout --theirs assets/
-            git add assets/
-            git commit --no-edit -m "Merge PR #$PR_NUMBER: Stats update [skip ci]"
+            echo "❌ Merge conflict inatteso tra main e before-pull. prima di risolvere: verificare che nessun'altra fonte scriva su assets/ direttamente su main."
+            exit 1
           fi
 
           MAX_RETRIES=5
