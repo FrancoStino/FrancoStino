@@ -72,6 +72,19 @@ jobs:
         if: steps.trophies-card.outcome == 'failure'
         run: echo "⚠️ Generazione trophies fallita, asset precedente non aggiornato."
 
+      - name: 3c. Diagnose WORKFLOW_TOKEN for stats API
+        run: |
+          echo "== Token scopes (classic PAT) =="
+          curl -sI -H "Authorization: token ${{ secrets.WORKFLOW_TOKEN }}" https://api.github.com/user \
+            | grep -i "x-oauth-scopes\|x-accepted-github-permissions\|status"
+
+          echo "== GraphQL viewer query (quello che usa github-readme-stats) =="
+          curl -s -X POST \
+            -H "Authorization: bearer ${{ secrets.WORKFLOW_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d '{"query":"query { viewer { login name } rateLimit { remaining limit resetAt } }"}' \
+            https://api.github.com/graphql
+
       - name: 4. Generate GitHub Stats card
         id: stats-card
         continue-on-error: true
@@ -249,7 +262,9 @@ jobs:
             echo "PR created: #$PR_NUMBER"
 
             echo "Assigning PR to repository owner..."
-            retry_command gh pr edit "$PR_NUMBER" --add-assignee "${{ github.repository_owner }}"
+            retry_command gh api "repos/${{ github.repository }}/issues/$PR_NUMBER/assignees" \
+              -f "assignees[]=${{ github.repository_owner }}" \
+              || echo "⚠️ Assegnazione PR fallita (scope insufficienti?), proseguo comunque."
           else
             PR_NUMBER=$EXISTING_PR
             echo "Using existing PR #$PR_NUMBER"
@@ -296,9 +311,6 @@ jobs:
             exit 0
           fi
 
-          echo "Approving PR #$PR_NUMBER..."
-          gh pr review "$PR_NUMBER" --approve --body "✅ Reviewed and approved automatically" || true
-
           git fetch origin
           git checkout main
           git pull origin main
@@ -329,7 +341,8 @@ jobs:
 
           if [ "$PR_STATE_AFTER" = "OPEN" ]; then
             echo "Closing PR #$PR_NUMBER..."
-            gh pr close "$PR_NUMBER" --comment "✅ Merged manually with conflict resolution" --delete-branch=false
+            gh pr close "$PR_NUMBER" --comment "✅ Merged manually with conflict resolution" --delete-branch=false \
+              || echo "⚠️ Chiusura PR fallita (probabile race condition: GitHub l'ha già marcata come merged nel frattempo). Proseguo."
           else
             echo "✅ PR #$PR_NUMBER already merged/closed"
           fi
