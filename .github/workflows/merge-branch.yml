@@ -26,7 +26,7 @@ jobs:
         run: |
           git checkout develop
           git pull origin develop --rebase
-          if ! git merge origin/main --no-ff -m "Sync main to develop"; then
+          if ! git merge origin/main --no-ff --allow-unrelated-histories -m "Sync main to develop"; then
             echo "Merge conflict detected - aborting"
             git merge --abort
             exit 1
@@ -41,6 +41,6 @@ jobs:
               echo "❌ Push failed after $MAX_RETRIES attempts"
               exit 1
             fi
-            echo "⚠️ Push rejected, pulling and rebasing ($RETRY/$MAX_RETRIES)..."
+            echo "⚠️ Push rejected, pulling e rebasing ($RETRY/$MAX_RETRIES)..."
             git pull origin develop --rebase
           done
