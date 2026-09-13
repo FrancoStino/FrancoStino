@@ -1,8 +1,8 @@
 
       <svg
         width="495"
-        height="306"
-        viewBox="0 0 495 306"
+        height="339"
+        viewBox="0 0 495 339"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -354,6 +354,34 @@
       <g class="rank-text">
         <text x="7.2" y="18.5">
         S
+       </text>
+      </g>
+    </g>
+    
+    </g>
+  </g><g transform="translate(0, 198)">
+    <g class="stagger" style="animation-delay: 1350ms" transform="translate(25, 0)">
+      <defs>
+        <clipPath id="myCircle">
+          <circle cx="12.5" cy="12.5" r="12.5" fill="#FFFFFF" />
+        </clipPath>
+      </defs>
+      <image xlink:href="data:image/image/png;base64,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" width="25" height="25" clip-path="url(#myCircle)"/>
+      <g transform="translate(30,16)">
+        <text class="stat bold">awesome-ai-plugins</text>
+      </g>
+      
+    <g data-testid="rank-circle" transform="translate(235, 0)">
+      <circle class="rank-circle-rim" cx="12.5" cy="12.5" r="14" />
+      <g class="rank-text"><text x="4" y="18.5">
+        S+
+       </text></g>
+    </g>
+    <g data-testid="rank-circle" transform="translate(285, 0)">
+      <circle class="rank-circle-rim" cx="12.5" cy="12.5" r="14" />
+      <g class="rank-text">
+        <text x="7.2" y="18.5">
+        A
        </text>
       </g>
     </g>
