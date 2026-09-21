@@ -63,7 +63,7 @@ jobs:
           GITHUB_TOKEN2: ${{ secrets.WORKFLOW_TOKEN }}
         with:
           username: ${{ github.repository_owner }}
-          column: '4'
+          max-cols: '4'
           file: assets/github-trophies.svg
           output_path: assets/github-trophies.svg
           token: ${{ secrets.WORKFLOW_TOKEN }}
