@@ -9,7 +9,7 @@
         aria-labelledby="descId"
       >
         <title id="titleId">Davide Ladisa&#39;s GitHub Stats, Rank: A</title>
-        <desc id="descId">Total Stars Earned: 103, Total Commits  : 3710, Total PRs: 9374, Total PRs Merged: 9326, Total PRs Reviewed: 8729, Total Issues: 9346, Contributed to (last year): 25</desc>
+        <desc id="descId">Total Stars Earned: 106, Total Commits  : 3640, Total PRs: 9371, Total PRs Merged: 9326, Total PRs Reviewed: 8729, Total Issues: 9352, Contributed to (last year): 25</desc>
         <style>
           .header {
             font: 600 18px 'Segoe UI', Ubuntu, Sans-Serif;
@@ -73,7 +73,7 @@
         stroke-dashoffset: 251.32741228718345;
       }
       to {
-        stroke-dashoffset: 38.63394429719285;
+        stroke-dashoffset: 38.266586182562044;
       }
     }
   
@@ -169,7 +169,7 @@
         x="224.01"
         y="12.5"
         data-testid="stars"
-      >103</text>
+      >106</text>
     </g>
   </g><g transform="translate(0, 25)">
     <g class="stagger" style="animation-delay: 600ms" transform="translate(25, 0)">
@@ -184,7 +184,7 @@
         x="224.01"
         y="12.5"
         data-testid="commits"
-      >3.7k</text>
+      >3.6k</text>
     </g>
   </g><g transform="translate(0, 50)">
     <g class="stagger" style="animation-delay: 750ms" transform="translate(25, 0)">
@@ -244,7 +244,7 @@
         x="224.01"
         y="12.5"
         data-testid="issues"
-      >9.3k</text>
+      >9.4k</text>
     </g>
   </g><g transform="translate(0, 150)">
     <g class="stagger" style="animation-delay: 1350ms" transform="translate(25, 0)">
