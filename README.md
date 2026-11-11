@@ -1,18 +1,20 @@
 <h1 align="center">Hi 👋, I'm Davide Ladisa a.k.a FrancoStino</h1>
 <p align="center">
+    <a href="https://davideladisa.it" target="__blank"><img alt="Website" title="Visit my website"
+            src="https://shieldcn.dev/badge/Website-davideladisa.it-4285F4.svg?variant=branded&size=xs&logo=lu%3AGlobe" /></a>
     <a href="https://linkedin.com/in/davide-ladisa" target="__blank"><img alt="LinkedIn"
             title="Look at my LinkedIn profile"
-            src="https://custom-icon-badges.demolab.com/badge/LinkedIn-0A66C2?style=for-the-badge&logo=linkedin-white&logoColor=fff" /></a>
-     <a href="https://instagram.com/davideladisa.it" target="__blank"><img alt="Instagram" title="Follow me on Instagram!"
-            src="https://img.shields.io/badge/Instagram-%23E4405F.svg?style=for-the-badge&logo=Instagram&logoColor=white" /></a>
+            src="https://shieldcn.dev/badge/LinkedIn-Connect-0A66C2.svg?variant=branded&size=xs&logo=ri%3AFaLinkedinIn" /></a>
+    <a href="https://instagram.com/davideladisa.it" target="__blank"><img alt="Instagram" title="Follow me on Instagram!"
+            src="https://shieldcn.dev/badge/Instagram-Follow-E4405F.svg?variant=branded&size=xs&logo=ri%3AFaInstagram" /></a>
     <a href="https://facebook.com/davide.ladisa.7" target="__blank"><img alt="Facebook" title="Follow me on Facebook!"
-            src="https://img.shields.io/badge/Facebook-%231877F2.svg?style=for-the-badge&logo=Facebook&logoColor=white" /></a>
+            src="https://shieldcn.dev/badge/Facebook-Follow-1877F2.svg?variant=branded&size=xs&logo=ri%3AFaFacebookF" /></a>
     <a href="https://stackoverflow.com/users/8006279" target="__blank"><img alt="Stack Overflow" title="Check my Stack Overflow!"
-            src="https://img.shields.io/badge/-Stackoverflow-FE7A16?logo=stack-overflow&style=for-the-badge&logoColor=white" /></a>
+            src="https://shieldcn.dev/badge/Stack_Overflow-Profile-FE7A16.svg?variant=branded&size=xs&logo=ri%3AFaStackOverflow" /></a>
     <a href="https://reddit.com/user/Pecoro" target="__blank"><img alt="Reddit" title="Follow me on Reddit!"
-            src="https://img.shields.io/badge/Reddit-%23FF4500.svg?style=for-the-badge&logo=Reddit&logoColor=white" /></a>
+            src="https://shieldcn.dev/badge/Reddit-Follow-FF4500.svg?variant=branded&size=xs&logo=ri%3AFaRedditAlien" /></a>
     <a href="https://codepen.io/rawsar" target="__blank"><img alt="Codepen" title="Check my Codepen!"
-            src="https://img.shields.io/badge/Codepen-000000?style=for-the-badge&logo=codepen&logoColor=white" /></a>
+            src="https://shieldcn.dev/badge/CodePen-Pens-000000.svg?variant=branded&size=xs&logo=ri%3AFaCodepen" /></a>
 </p>
 
 
@@ -69,7 +71,7 @@ Do you like numbers and charts? Let's see some then:
   <summary>🛠 Projects</summary>
   <br/>
   <p align="center">
-    <a href="https://docs.google.com/spreadsheets/d/1pdEufTQxVExLAEmTc0-Zm7UKdS9PCoNvx2FfKhBvZaA/edit?gid=0#gid=0" target="_blank">
+    <a href="https://www.davideladisa.it/projects" target="_blank">
       <img src="https://img.shields.io/badge/View%20Full%20Project%20List-4285F4?style=for-the-badge&logo=google-sheets&logoColor=white" alt="View Projects"/>
     </a>
   </p>
