@@ -2,11 +2,14 @@ name: GitHub Readme CI
 
 on:
   schedule:
-    - cron: '0 0 * * *' # Daily at midnight
-  workflow_dispatch:
+    - cron: "0 3 * * 1" # Ogni lunedì alle 03:00 UTC  workflow_dispatch:
   push:
     branches:
       - main
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
 
 permissions:
   contents: write
