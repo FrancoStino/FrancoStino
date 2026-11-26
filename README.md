@@ -1,20 +1,20 @@
 <h1 align="center">Hi 👋, I'm Davide Ladisa a.k.a FrancoStino</h1>
 <p align="center">
     <a href="https://davideladisa.it" target="__blank"><img alt="Website" title="Visit my website"
-            src="https://shieldcn.dev/badge/Website-davideladisa.it-4285F4.svg?variant=branded&size=xs&logo=lu%3AGlobe" /></a>
+            src="https://shieldcn.dev/badge/davideladisa.it-4285F4.svg?variant=branded&size=xs&logo=lu%3AGlobe" /></a>
     <a href="https://linkedin.com/in/davide-ladisa" target="__blank"><img alt="LinkedIn"
             title="Look at my LinkedIn profile"
-            src="https://shieldcn.dev/badge/LinkedIn-Connect-0A66C2.svg?variant=branded&size=xs&logo=ri%3AFaLinkedinIn" /></a>
+            src="https://shieldcn.dev/badge/LinkedIn-0A66C2.svg?variant=branded&size=xs&logo=ri%3AFaLinkedinIn" /></a>
     <a href="https://instagram.com/davideladisa.it" target="__blank"><img alt="Instagram" title="Follow me on Instagram!"
-            src="https://shieldcn.dev/badge/Instagram-Follow-E4405F.svg?variant=branded&size=xs&logo=ri%3AFaInstagram" /></a>
+            src="https://shieldcn.dev/badge/Instagram-E4405F.svg?variant=branded&size=xs&logo=ri%3AFaInstagram" /></a>
     <a href="https://facebook.com/davide.ladisa.7" target="__blank"><img alt="Facebook" title="Follow me on Facebook!"
-            src="https://shieldcn.dev/badge/Facebook-Follow-1877F2.svg?variant=branded&size=xs&logo=ri%3AFaFacebookF" /></a>
+            src="https://shieldcn.dev/badge/Facebook-1877F2.svg?variant=branded&size=xs&logo=ri%3AFaFacebookF" /></a>
     <a href="https://stackoverflow.com/users/8006279" target="__blank"><img alt="Stack Overflow" title="Check my Stack Overflow!"
-            src="https://shieldcn.dev/badge/Stack_Overflow-Profile-FE7A16.svg?variant=branded&size=xs&logo=ri%3AFaStackOverflow" /></a>
+            src="https://shieldcn.dev/badge/Stack_Overflow-FE7A16.svg?variant=branded&size=xs&logo=ri%3AFaStackOverflow" /></a>
     <a href="https://reddit.com/user/Pecoro" target="__blank"><img alt="Reddit" title="Follow me on Reddit!"
-            src="https://shieldcn.dev/badge/Reddit-Follow-FF4500.svg?variant=branded&size=xs&logo=ri%3AFaRedditAlien" /></a>
+            src="https://shieldcn.dev/badge/Reddit-FF4500.svg?variant=branded&size=xs&logo=ri%3AFaRedditAlien" /></a>
     <a href="https://codepen.io/rawsar" target="__blank"><img alt="Codepen" title="Check my Codepen!"
-            src="https://shieldcn.dev/badge/CodePen-Pens-000000.svg?variant=branded&size=xs&logo=ri%3AFaCodepen" /></a>
+            src="https://shieldcn.dev/badge/CodePen-000000.svg?variant=branded&size=xs&logo=ri%3AFaCodepen" /></a>
 </p>
 
 
